@@ -270,3 +270,27 @@ body {
 input[type="number"] {
     display: none !important;
 }
+
+/* Mobile navigation and responsive layout. Desktop remains unchanged. */
+.mobile-header, .menu-overlay { display:none; }
+@media (max-width:650px) {
+ html,body { max-width:100%; overflow-x:hidden; }
+ .app-container { display:block; min-width:0; }
+ .mobile-header { display:flex; align-items:center; justify-content:space-between; position:fixed; top:0; left:0; right:0; width:100%; z-index:1100; padding:10px 16px; min-height:62px; background:#18233e; color:white; }
+ .mobile-brand { font-size:16px; font-weight:700; }
+ .menu-button { border:1px solid #465371; background:#273451; color:white; border-radius:9px; min-width:44px; min-height:42px; font-size:23px; cursor:pointer; }
+ .sidebar { position:fixed; top:0; left:0; z-index:1200; width:min(82vw,300px); min-width:0; height:100dvh; overflow-y:auto; transform:translateX(-105%); transition:transform .2s ease; }
+ body.menu-open .sidebar { transform:translateX(0); }
+ body.menu-open .menu-overlay { display:block; position:fixed; inset:0; z-index:1150; background:rgba(12,22,40,.5); }
+ body.menu-open { overflow:hidden; }
+ .main-content { width:100%; min-width:0; padding:18px 12px 28px; }
+ .app-container { padding-top:62px; }
+ .page-title { font-size:24px; overflow-wrap:anywhere; }
+ .stats-grid { grid-template-columns:1fr; gap:12px; }
+ .stat-card { padding:16px; }
+ .chart-card { padding:14px 10px; max-width:100%; overflow:hidden; }
+ .controls-row { flex-direction:column; }
+ .controls-row > * { width:100% !important; min-width:0 !important; max-width:100%; }
+ .main-content .dash-graph, .main-content .js-plotly-plot, .main-content .plot-container { max-width:100%; min-width:0; }
+ .info-box { overflow-wrap:anywhere; }
+}

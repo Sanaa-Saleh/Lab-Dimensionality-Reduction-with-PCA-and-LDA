@@ -47,14 +47,6 @@ def layout():
                         tooltip={"placement": "bottom", "always_visible": False},
                     ),
                 ]),
-                html.Div(style={"flex": "1", "minWidth": "240px"}, children=[
-                    html.Label("Manually Retained Components"),
-                    dcc.Slider(
-                        id="ev-components", min=1, max=4, step=1, value=2,
-                        marks={i: str(i) for i in range(1, 5)},
-                        updatemode="drag",
-                    ),
-                ]),
             ]),
             html.Div(
                 id="ev-target-status",
@@ -64,13 +56,13 @@ def layout():
         ]),
         html.Div(className="stats-grid", children=[
             stat_card("Components Needed for Target", "ev-needed"),
-            stat_card("Variance Retained (Manual)", "ev-retained"),
-            stat_card("Variance Lost (Manual)", "ev-lost"),
+            stat_card("Variance Retained (Automatic)", "ev-retained"),
+            stat_card("Variance Lost (Automatic)", "ev-lost"),
         ]),
         html.Div(className="chart-card", children=[
             html.Div("Explained Variance Ratio", className="section-title"),
             html.P("Each bar shows the variance explained by one component. "
-                   "Purple bars are manually retained.",
+                   "Purple bars are automatically retained to meet the target.",
                    className="section-description"),
             dcc.Graph(id="ev-bars", config={"displaylogo": False}),
         ]),
@@ -127,7 +119,7 @@ def make_bar_chart(components):
     return fig
 
 
-def make_cumulative_chart(threshold, needed, components):
+def make_cumulative_chart(threshold, needed):
     x = list(range(1, 5))
     fig = go.Figure()
     fig.add_trace(go.Scatter(
@@ -154,12 +146,6 @@ def make_cumulative_chart(threshold, needed, components):
         marker=dict(color=TEAL, size=17, symbol="diamond"),
         hovertemplate="Minimum: %{x} component(s)<br>%{y:.2f}%<extra></extra>",
     ))
-    fig.add_trace(go.Scatter(
-        x=[components], y=[float(cumulative[components - 1] * 100)],
-        mode="markers", name="Manual selection",
-        marker=dict(color="#eaa054", size=15, symbol="circle-open", line=dict(width=3)),
-        hovertemplate="Manual: %{x} component(s)<br>%{y:.2f}%<extra></extra>",
-    ))
     fig.update_layout(
         template="plotly_white", height=410,
         margin=dict(l=55, r=30, t=45, b=45),
@@ -183,13 +169,12 @@ def register_callbacks(app):
         Output("ev-insight", "children"),
         Output("ev-target-status", "children"),
         Input("ev-threshold", "value"),
-        Input("ev-components", "value"),
     )
-    def update_explained_variance(threshold, components):
+    def update_explained_variance(threshold):
         threshold = float(threshold)
-        components = int(components)
         needed = int(np.searchsorted(cumulative, threshold / 100, side="left") + 1)
         needed = min(needed, 4)
+        components = needed
         retained = float(cumulative[components - 1] * 100)
         lost = max(0.0, 100.0 - retained)
         header_style = {"textAlign": "left", "padding": "10px", "borderBottom": "1px solid #e2e8f0"}
@@ -211,33 +196,19 @@ def register_callbacks(app):
             ]),
         ])
         insight = (
-            f"To reach at least {threshold:.0f}% variance, retain {needed} component(s) "
-            f"({cumulative[needed - 1] * 100:.2f}% explained). "
-            f"Your manual selection of {components} component(s) retains {retained:.2f}% "
-            f"and {'meets' if retained + 1e-9 >= threshold else 'does not meet'} the target."
+            f"To reach at least {threshold:.0f}% explained variance, the minimum "
+            f"{needed} component(s) are automatically retained, preserving "
+            f"{retained:.2f}% variance and losing {lost:.2f}%."
         )
-        if retained + 1e-9 >= threshold:
-            status = html.Div([
-                html.Strong("✓ Target achieved"),
-                html.Div(
-                    f"Your manual choice of {components} component(s) preserves "
-                    f"{retained:.2f}% of the variance, meeting the {threshold:.0f}% target. "
-                    f"The minimum required is {needed} component(s)."
-                ),
-            ])
-        else:
-            shortfall = threshold - retained
-            status = html.Div([
-                html.Strong("Target not achieved"),
-                html.Div(
-                    f"Your manual choice of {components} component(s) preserves "
-                    f"{retained:.2f}%, which is {shortfall:.2f} percentage points "
-                    f"below the {threshold:.0f}% target. "
-                    f"Select at least {needed} component(s) to reach it."
-                ),
-            ])
+        status = html.Div([
+            html.Strong("✓ Target achieved automatically"),
+            html.Div(
+                f"The {threshold:.0f}% target requires {needed} component(s), "
+                f"retaining {retained:.2f}% variance."
+            ),
+        ])
         return (
             make_bar_chart(components),
-            make_cumulative_chart(threshold, needed, components),
+            make_cumulative_chart(threshold, needed),
             str(needed), f"{retained:.2f}%", f"{lost:.2f}%", table, insight, status,
         )

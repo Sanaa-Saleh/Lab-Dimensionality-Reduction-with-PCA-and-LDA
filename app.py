@@ -30,7 +30,8 @@ colors = ['#24b6a4', '#eaa054', '#8e80e6']
 app = Dash(
     __name__,
     suppress_callback_exceptions=True,
-    prevent_initial_callbacks='initial_duplicate'
+    prevent_initial_callbacks='initial_duplicate',
+    meta_tags=[{'name':'viewport','content':'width=device-width, initial-scale=1'}]
 )
 
 server = app.server
@@ -206,7 +207,10 @@ app.layout = html.Div(
     className='app-container',
     children=[
         dcc.Location(id='url'),
+        html.Div([html.Span('Dimensionality Lab', className='mobile-brand'),
+                  html.Button('☰', id='menu-button', n_clicks=0, className='menu-button')], className='mobile-header'),
         sidebar,
+        html.Div(id='menu-overlay', className='menu-overlay', n_clicks=0),
         html.Div(id='page-content', className='main-content')
     ]
 )
@@ -215,7 +219,24 @@ app.layout = html.Div(
 # ==========================================
 # 6. Page Navigation Callback
 # ==========================================
-@app.callback(Output('page-content', 'children'), Input('url', 'pathname'))
+app.clientside_callback(
+    """
+    function(clicks, path, overlay) {
+        const changed = dash_clientside.callback_context.triggered;
+        const id = changed.length ? changed[0].prop_id.split('.')[0] : '';
+        const wasOpen = document.body.classList.contains('menu-open');
+        const open = id === 'menu-button' ? !wasOpen : false;
+        document.body.classList.toggle('menu-open', open);
+        return open ? '✕' : '☰';
+    }
+    """,
+    Output('menu-button', 'children'),
+    Input('menu-button', 'n_clicks'),
+    Input('url', 'pathname'),
+    Input('menu-overlay', 'n_clicks')
+)
+
+@app.callback(Output('page-content' , 'children'), Input('url', 'pathname'))
 def display_page(pathname):
     if pathname == '/standardization':
         return standardization.layout()
@@ -290,4 +311,4 @@ def toggle_z_axis(mode):
 # 9. Run Application
 # ==========================================
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
