@@ -230,7 +230,7 @@ def layout():
 
                 dcc.Interval(
                     id="std-interval",
-                    interval=1000,
+                    interval=400,
                     disabled=True
                 ),
 
@@ -319,47 +319,32 @@ def layout():
 def register_callbacks(app):
 
     # Animation controls
-    @app.callback(
-        Output("std-interval", "disabled"),
-        Input("std-play", "n_clicks"),
-        Input("std-pause", "n_clicks"),
-        Input("std-reset", "n_clicks"),
-        Input("std-slider", "value"),
-        State("std-interval", "disabled"),
+    # Keep the animation clock and slider in the browser, independent of server latency.
+    app.clientside_callback(
+        """function(play, pause, reset, progress) {
+            const context = dash_clientside.callback_context;
+            const t = context.triggered_id || ((context.triggered && context.triggered[0]) ? context.triggered[0].prop_id.split('.')[0] : null);
+            if (t === 'std-play') return Number(progress) >= 100;
+            if (t === 'std-pause' || t === 'std-reset') return true;
+            if (t === 'std-slider' && Number(progress) >= 100) return true;
+            return dash_clientside.no_update;
+        }""",
+        Output('std-interval', 'disabled'),
+        Input('std-play', 'n_clicks'), Input('std-pause', 'n_clicks'),
+        Input('std-reset', 'n_clicks'), Input('std-slider', 'value'),
         prevent_initial_call=True
     )
-    def control_animation(play, pause, reset,
-                          progress, disabled):
 
-        trigger = ctx.triggered_id
-
-        if trigger == "std-play":
-            return progress >= 100
-
-        if trigger in ("std-pause", "std-reset"):
-            return True
-
-        if trigger == "std-slider" and progress >= 100:
-            return True
-
-        return no_update
-
-    # Advance animation
-    @app.callback(
-        Output("std-slider", "value"),
-        Input("std-interval", "n_intervals"),
-        Input("std-reset", "n_clicks"),
-        State("std-slider", "value"),
-        prevent_initial_call=True
+    app.clientside_callback(
+        """function(ticks, reset, current) {
+            if (dash_clientside.callback_context.triggered.some(x => x.prop_id === 'std-reset.n_clicks')) return 0;
+            return Math.round(Math.min(100, (Number(current) || 0) + 5) * 100) / 100;
+        }""",
+        Output('std-slider', 'value'),
+        Input('std-interval', 'n_intervals'), Input('std-reset', 'n_clicks'),
+        State('std-slider', 'value'), prevent_initial_call=True
     )
-    def update_progress(ticks, reset, progress):
 
-        if ctx.triggered_id == "std-reset":
-            return 0
-
-        return min(100, (progress or 0) + 5)
-
-    # Update charts and statistics
     @app.callback(
         Output("std-graph", "figure"),
         Output("std-before", "figure"),

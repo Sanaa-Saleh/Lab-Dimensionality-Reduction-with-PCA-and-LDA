@@ -130,7 +130,7 @@ def layout():
                 html.Button('⏸ Pause', id='pca-pause', className='control-button secondary'),
                 html.Button('↺ Reset', id='pca-reset', className='control-button secondary')
             ]),
-            dcc.Interval(id='pca-interval', interval=200, n_intervals=0, disabled=True)
+            dcc.Interval(id='pca-interval', interval=500, n_intervals=0, disabled=True)
         ]),
         html.Div(className='chart-card', children=[
             html.Div('Live PCA Projection', className='section-title'),
@@ -190,31 +190,31 @@ $$\mathbf{z}_{\mathrm{PC1}}=(z_1,0)$$
     ])
 
 def register_callbacks(app):
-    @app.callback(
+    # Browser-side controls prevent Play from waiting for Render round trips.
+    app.clientside_callback(
+        """function(play, pause, reset, progress) {
+            const context = dash_clientside.callback_context;
+            const t = context.triggered_id || ((context.triggered && context.triggered[0]) ? context.triggered[0].prop_id.split('.')[0] : null);
+            if (t === 'pca-play') return Number(progress) >= 1;
+            if (t === 'pca-pause' || t === 'pca-reset') return true;
+            if (t === 'pca-progress' && Number(progress) >= 1) return true;
+            return dash_clientside.no_update;
+        }""",
         Output('pca-interval', 'disabled'),
         Input('pca-play', 'n_clicks'), Input('pca-pause', 'n_clicks'),
         Input('pca-reset', 'n_clicks'), Input('pca-progress', 'value'),
         prevent_initial_call=True
     )
-    def control(play, pause, reset, progress):
-        trigger = ctx.triggered_id
-        if trigger == 'pca-play':
-            return progress >= 1
-        if trigger in ('pca-pause', 'pca-reset'):
-            return True
-        if trigger == 'pca-progress' and progress >= 1:
-            return True
-        return no_update
 
-    @app.callback(
+    app.clientside_callback(
+        """function(ticks, reset, current) {
+            if (dash_clientside.callback_context.triggered.some(x => x.prop_id === 'pca-reset.n_clicks')) return 0;
+            return Math.round(Math.min(1, (Number(current) || 0) + 0.05) * 1000) / 1000;
+        }""",
         Output('pca-progress', 'value'),
         Input('pca-interval', 'n_intervals'), Input('pca-reset', 'n_clicks'),
         State('pca-progress', 'value'), prevent_initial_call=True
     )
-    def advance(ticks, reset, current):
-        if ctx.triggered_id == 'pca-reset':
-            return 0
-        return round(min(1, (current if current is not None else 0) + STEP), 3)
 
     @app.callback(
         Output('pca-projection-graph', 'figure'),

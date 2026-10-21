@@ -395,7 +395,7 @@ def layout():
 
                 dcc.Interval(
                     id="vc-interval",
-                    interval=250,
+                    interval=500,
                     n_intervals=0,
                     disabled=True
                 )
@@ -579,53 +579,31 @@ def register_callbacks(app):
     # Play / Pause / Reset
     # --------------------------------------
 
-    @app.callback(
-        Output("vc-interval", "disabled"),
-        Input("vc-play", "n_clicks"),
-        Input("vc-pause", "n_clicks"),
-        Input("vc-reset", "n_clicks"),
-        Input("vc-spread", "value"),
+    # Keep the animation clock and slider in the browser, independent of server latency.
+    app.clientside_callback(
+        """function(play, pause, reset, progress) {
+            const context = dash_clientside.callback_context;
+            const t = context.triggered_id || ((context.triggered && context.triggered[0]) ? context.triggered[0].prop_id.split('.')[0] : null);
+            if (t === 'vc-play') return Number(progress) >= 3;
+            if (t === 'vc-pause' || t === 'vc-reset') return true;
+            if (t === 'vc-spread' && Number(progress) >= 3) return true;
+            return dash_clientside.no_update;
+        }""",
+        Output('vc-interval', 'disabled'),
+        Input('vc-play', 'n_clicks'), Input('vc-pause', 'n_clicks'),
+        Input('vc-reset', 'n_clicks'), Input('vc-spread', 'value'),
         prevent_initial_call=True
     )
-    def control_animation(play, pause, reset, spread):
 
-        trigger = ctx.triggered_id
-
-        if trigger == "vc-play":
-            return spread >= MAX_SPREAD
-
-        if trigger in ("vc-pause", "vc-reset"):
-            return True
-
-        if trigger == "vc-spread" and spread >= MAX_SPREAD:
-            return True
-
-        return no_update
-
-    # --------------------------------------
-    # Advance Spread Animation
-    # --------------------------------------
-
-    @app.callback(
-        Output("vc-spread", "value"),
-        Input("vc-interval", "n_intervals"),
-        Input("vc-reset", "n_clicks"),
-        State("vc-spread", "value"),
-        prevent_initial_call=True
+    app.clientside_callback(
+        """function(ticks, reset, current) {
+            if (dash_clientside.callback_context.triggered.some(x => x.prop_id === 'vc-reset.n_clicks')) return 1;
+            return Math.round(Math.min(3, (Number(current) || 1) + 0.1) * 100) / 100;
+        }""",
+        Output('vc-spread', 'value'),
+        Input('vc-interval', 'n_intervals'), Input('vc-reset', 'n_clicks'),
+        State('vc-spread', 'value'), prevent_initial_call=True
     )
-    def update_progress(ticks, reset, current):
-
-        if ctx.triggered_id == "vc-reset":
-            return 1.0
-
-        return round(
-            min(MAX_SPREAD, (current or 1.0) + STEP),
-            2
-        )
-
-    # --------------------------------------
-    # Update Main Charts
-    # --------------------------------------
 
     @app.callback(
         Output("vc-scatter", "figure"),
