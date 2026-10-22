@@ -381,8 +381,8 @@ body.sidebar-collapsed .app-container > .main-content { grid-column:2; }
 @media (max-width: 700px) {
     #pca-progress {
         width: auto !important;
-        margin-left: 65px !important;
-        margin-right: 65px !important;
+        margin-left: 45px !important;
+        margin-right: 45px !important;
     }
 
     #pca-progress .rc-slider-mark-text {
