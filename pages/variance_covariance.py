@@ -637,7 +637,7 @@ def register_callbacks(app):
             if (fig && fig.layout && !fig.layout.scene) {
                 fig.layout.xaxis = Object.assign({}, fig.layout.xaxis || {}, {fixedrange:true});
                 fig.layout.yaxis = Object.assign({}, fig.layout.yaxis || {}, {fixedrange:true});
-                fig.layout.legend = Object.assign({}, fig.layout.legend || {}, {orientation:'h', x:0.5, xanchor:'center', y:-0.20, yanchor:'top', font:{size:10},itemsizing:'constant',entrywidth:0.24,entrywidthmode:'fraction',tracegroupgap:0});
+                fig.layout.legend = Object.assign({}, fig.layout.legend || {}, {orientation:'h', x:0.2, xanchor:'left', y:-0.20, yanchor:'top', font:{size:10},itemsizing:'constant',entrywidth:0.24,entrywidthmode:'fraction',tracegroupgap:0});
                 fig.layout.margin = Object.assign({}, fig.layout.margin || {}, {b:110});
             }
             return fig;
