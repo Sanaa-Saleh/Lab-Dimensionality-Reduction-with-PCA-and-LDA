@@ -242,34 +242,19 @@ def register_callbacks(app):
         Input('pca-progress', 'value'), State('pca-animation-data', 'data')
     )
 
-    @app.callback(
-        Output('pca-progress-label', 'children'),
-        Output('pca-progress-explanation', 'children'),
-        Input('pca-progress', 'value')
+    app.clientside_callback(
+        """function(progress) {
+            const p=Math.max(0,Math.min(1,Number(progress || 0)));
+            const label=`Projection progress: ${(p*100).toFixed(1)}%`;
+            let explanation;
+            if (p<=0) explanation='Original PC1–PC2 view: each point keeps both its PC1 and PC2 scores. The plot shows two principal components of the standardized Iris data.';
+            else if (p>=1) explanation='Projection complete: every point now lies on the PC1 axis (PC2 = 0), while its PC1 score stays unchanged. This is a visual demonstration of reducing the displayed two-dimensional score plane to one dimension.';
+            else explanation=`Projection in progress: PC1 stays unchanged, while each point retains ${((1-p)*100).toFixed(1)}% of its original PC2 coordinate. This gradual movement is an educational animation, not a separate PCA fit.`;
+            return [label,explanation];
+        }""",
+        Output('pca-progress-label','children'), Output('pca-progress-explanation','children'),
+        Input('pca-progress','value')
     )
-    def update_graph(progress):
-        progress = float(progress if progress is not None else 0)
-        progress = max(0.0, min(1.0, progress))
-        label = f'Projection progress: {progress * 100:.1f}%'
-        if progress <= 0:
-            explanation = (
-                'Original PC1–PC2 view: each point keeps both its PC1 and PC2 scores. '
-                'The plot shows two principal components of the standardized Iris data.'
-            )
-        elif progress >= 1:
-            explanation = (
-                'Projection complete: every point now lies on the PC1 axis (PC2 = 0), '
-                'while its PC1 score stays unchanged. This is a visual demonstration of '
-                'reducing the displayed two-dimensional score plane to one dimension.'
-            )
-        else:
-            remaining = (1 - progress) * 100
-            explanation = (
-                f'Projection in progress: PC1 stays unchanged, while each point retains '
-                f'{remaining:.1f}% of its original PC2 coordinate. '
-                'This gradual movement is an educational animation, not a separate PCA fit.'
-            )
-        return label, explanation
 
     @app.callback(
         Output('pca-loadings-graph', 'figure'),

@@ -287,6 +287,7 @@ def layout():
             'original': X.tolist(), 'means': means.tolist(),
             'targets': iris.target.tolist(),
             'base': create_scatter(X, 0, 1, 1).to_plotly_json(),
+            'heatmap_base': create_covariance_heatmap(X).to_plotly_json(),
             'names': feature_names,
             'ranges': [get_fixed_ranges(i, i)[0] for i in range(4)]
         }),
@@ -402,7 +403,7 @@ def layout():
 
                 dcc.Interval(
                     id="vc-interval",
-                    interval=200,
+                    interval=100,
                     n_intervals=0,
                     disabled=True
                 )
@@ -648,65 +649,49 @@ def register_callbacks(app):
         State('vc-animation-data', 'data')
     )
 
-    @app.callback(
-        Output("vc-heatmap", "figure"),
-        Output("vc-var-x", "children"),
-        Output("vc-var-y", "children"),
-        Output("vc-cov", "children"),
-        Output("vc-corr", "children"),
-        Output("vc-spread-label", "children"),
-        Output("vc-spread-explanation", "children"),
-        Input("vc-x", "value"),
-        Input("vc-y", "value"),
-        Input("vc-spread", "value")
+    # Values and explanatory text update locally on every animation frame.
+    app.clientside_callback(
+        """function(xIdx, yIdx, spread, d) {
+            if (!d) return Array(6).fill(dash_clientside.no_update);
+            const x=Number(xIdx), y=Number(yIdx), scale=Number(spread || 1);
+            const n=d.original.length;
+            let vx=0, vy=0, cv=0;
+            const mx=d.means[x], my=d.means[y];
+            for (const row of d.original) {
+                const dx=row[x]-mx, dy=row[y]-my;
+                vx+=dx*dx; vy+=dy*dy; cv+=dx*dy;
+            }
+            vx=vx/(n-1)*scale*scale;
+            vy=vy/(n-1)*scale*scale;
+            cv=cv/(n-1)*scale*scale;
+            const corr=(vx>0 && vy>0) ? cv/Math.sqrt(vx*vy) : 0;
+            const factor=scale*scale;
+            const explanation=Math.abs(scale-1)<1e-9
+              ? 'Original data (1.00×): variance and covariance are at their baseline values. Correlation describes the strength and direction of the linear relationship.'
+              : `At ${scale.toFixed(2)}× spread, both variances and covariance are multiplied by ${factor.toFixed(2)} (spread²). Their magnitudes are ${factor.toFixed(2)}× the original values (${factor>1?'larger':'smaller'} in magnitude when compared with 1×). Correlation stays unchanged because both axes are scaled by the same positive factor.`;
+            return [vx.toFixed(3),vy.toFixed(3),cv.toFixed(3),corr.toFixed(3),`Current spread: ${scale.toFixed(2)}×`,explanation];
+        }""",
+        Output('vc-var-x','children'), Output('vc-var-y','children'),
+        Output('vc-cov','children'), Output('vc-corr','children'),
+        Output('vc-spread-label','children'), Output('vc-spread-explanation','children'),
+        Input('vc-x','value'), Input('vc-y','value'), Input('vc-spread','value'),
+        State('vc-animation-data','data')
     )
-    def update_visualization(x_idx, y_idx, spread):
 
-        modified = transform_data(spread)
-
-        variance_x = np.var(
-            modified[:, x_idx], ddof=1
-        )
-
-        variance_y = np.var(
-            modified[:, y_idx], ddof=1
-        )
-
-        covariance = np.cov(
-            modified[:, x_idx],
-            modified[:, y_idx]
-        )[0, 1]
-
-        correlation = np.corrcoef(
-            modified[:, x_idx], modified[:, y_idx]
-        )[0, 1]
-        # For identical axes, correlation is +1 by definition here.
-        factor = spread ** 2
-        if np.isclose(spread, 1.0):
-            explanation = (
-                "Original data (1.00×): variance and covariance are at their "
-                "baseline values. Correlation describes the strength and direction "
-                "of the linear relationship."
-            )
-        else:
-            direction = "larger" if factor > 1 else "smaller"
-            explanation = (
-                f"At {spread:.2f}× spread, both variances and covariance are "
-                f"multiplied by {factor:.2f} (spread²). Their magnitudes are "
-                f"{factor:.2f}× the original values ({direction} in magnitude "
-                "when compared with 1×). Correlation stays unchanged because "
-                "both axes are scaled by the same positive factor."
-            )
-
-        return (
-            create_covariance_heatmap(modified),
-            f"{variance_x:.3f}",
-            f"{variance_y:.3f}",
-            f"{covariance:.3f}",
-            f"{correlation:.3f}",
-            f"Current spread: {spread:.2f}×",
-            explanation
-        )
+    # The covariance matrix is updated in the browser, in sync with the scatter.
+    app.clientside_callback(
+        """function(spread, d) {
+            if (!d) return dash_clientside.no_update;
+            const factor=Math.pow(Number(spread || 1),2);
+            const fig=structuredClone(d.heatmap_base);
+            const base=fig.data[0].z;
+            fig.data[0].z=base.map(row=>row.map(v=>v*factor));
+            fig.data[0].text=fig.data[0].z.map(row=>row.map(v=>Number(v.toFixed(3))));
+            return fig;
+        }""",
+        Output('vc-heatmap','figure'), Input('vc-spread','value'),
+        State('vc-animation-data','data')
+    )
 
     # --------------------------------------
     # Positive / Negative Relationship

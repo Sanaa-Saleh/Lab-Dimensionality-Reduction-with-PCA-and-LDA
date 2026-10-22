@@ -111,6 +111,91 @@ def get_fixed_ranges(x_idx, y_idx):
     return padded_range(all_x), padded_range(all_y)
 
 
+def build_stats(progress, x_idx, y_idx):
+
+    alpha = (progress or 0) / 100
+
+    # Educational interpolation
+    current = (
+        (1 - alpha) * X + alpha * X_scaled
+    )
+
+    mean = current.mean(axis=0)
+    std = current.std(axis=0, ddof=0)
+    original_mean = X.mean(axis=0)
+    original_std = X.std(axis=0, ddof=0)
+    scaled_mean = X_scaled.mean(axis=0)
+    scaled_std = X_scaled.std(axis=0, ddof=0)
+
+    def format_stat(value):
+        # Suppress negative zero caused by floating-point rounding.
+        return "0.000" if abs(float(value)) < 0.0005 else f"{value:.3f}"
+
+    def metric_card(label, value, note, value_id):
+        return html.Div(
+            className="stat-card",
+            children=[
+                html.Div(label, className="stat-label"),
+                html.Div(format_stat(value), id=value_id, className="stat-value"),
+                html.Div(note, className="section-description")
+            ]
+        )
+
+    stats = html.Div([
+        html.H3(f"Progress: {progress}%", id="std-live-progress"),
+        html.P(
+            "The points move smoothly from the original measurements "
+            "toward their standardized z-scores."
+        ),
+        html.Div(
+            className="stats-grid",
+            style={
+                "display": "grid",
+                "gridTemplateColumns": "repeat(2, minmax(0, 1fr))",
+                "gap": "16px",
+                "marginBottom": "24px"
+            },
+            children=[
+            metric_card("Current X Mean", mean[x_idx], "Live transformation", "std-live-x-mean"),
+            metric_card("Current X Std", std[x_idx], "Live transformation", "std-live-x-std"),
+            metric_card("Current Y Mean", mean[y_idx], "Live transformation", "std-live-y-mean"),
+            metric_card("Current Y Std", std[y_idx], "Live transformation", "std-live-y-std")
+        ]),
+        html.H4("Original vs Standardized Statistics"),
+        html.Div(
+            style={"overflowX": "auto"},
+            children=html.Table(
+                style={"width": "100%", "borderCollapse": "collapse", "textAlign": "left"},
+                children=[
+                    html.Thead(html.Tr([
+                        html.Th("Feature", style={"padding": "10px"}),
+                        html.Th("Original Mean", style={"padding": "10px"}),
+                        html.Th("Original Std", style={"padding": "10px"}),
+                        html.Th("Standardized Mean", style={"padding": "10px"}),
+                        html.Th("Standardized Std", style={"padding": "10px"})
+                    ])),
+                    html.Tbody([
+                        html.Tr([
+                            html.Td(feature_names[idx], style={"padding": "10px"}),
+                            html.Td(format_stat(original_mean[idx]), style={"padding": "10px"}),
+                            html.Td(format_stat(original_std[idx]), style={"padding": "10px"}),
+                            html.Td(format_stat(scaled_mean[idx]), style={"padding": "10px"}),
+                            html.Td(format_stat(scaled_std[idx]), style={"padding": "10px"})
+                        ]) for idx in dict.fromkeys([x_idx, y_idx])
+                    ])
+                ]
+            )
+        ),
+        html.P(
+            "Note: The animation interpolates between the original and "
+            "standardized coordinates for learning purposes. "
+            "Only the 100% frame represents fully standardized data."
+        )
+    ])
+
+    return stats
+
+
 # ==========================================
 # 4. Page Layout
 # ==========================================
@@ -236,12 +321,13 @@ def layout():
 
                 dcc.Interval(
                     id="std-interval",
-                    interval=200,
+                    interval=100,
                     disabled=True
                 ),
 
                 html.Div(
                     id="std-stats",
+                    children=build_stats(0, 0, 1),
                     className="info-box",
                     style={"marginTop": "30px"}
                 )
@@ -398,92 +484,27 @@ def register_callbacks(app):
         return (create_figure(X, x_idx, y_idx, 'Before: Original Data'),
                 create_figure(X_scaled, x_idx, y_idx, 'After: Standardized Data', axis_mode='standardized'))
 
-    @app.callback(
-        Output("std-stats", "children"),
-        Input("std-slider", "value"),
-        Input("std-x", "value"),
-        Input("std-y", "value")
+    # Lightweight statistics update alongside each browser-side animation frame.
+    app.clientside_callback(
+        """function(progress, xIdx, yIdx, d) {
+            if (!d) return Array(5).fill(dash_clientside.no_update);
+            const a = Math.max(0, Math.min(1, Number(progress || 0)/100));
+            const fmt = v => Math.abs(v) < 0.0005 ? '0.000' : v.toFixed(3);
+            const metric = idx => {
+                let sum = 0, sq = 0, n = d.original.length;
+                for (let i=0; i<n; i++) {
+                    const v = (1-a)*d.original[i][idx] + a*d.scaled[i][idx];
+                    sum += v; sq += v*v;
+                }
+                const mean = sum/n;
+                return [fmt(mean), fmt(Math.sqrt(Math.max(0, sq/n-mean*mean)))];
+            };
+            const x = metric(Number(xIdx)), y = metric(Number(yIdx));
+            return [`Progress: ${progress}%`, x[0], x[1], y[0], y[1]];
+        }""",
+        Output('std-live-progress','children'),
+        Output('std-live-x-mean','children'), Output('std-live-x-std','children'),
+        Output('std-live-y-mean','children'), Output('std-live-y-std','children'),
+        Input('std-slider','value'), Input('std-x','value'), Input('std-y','value'),
+        State('std-animation-data','data')
     )
-    def update_visualization(progress, x_idx, y_idx):
-
-        alpha = (progress or 0) / 100
-
-        # Educational interpolation
-        current = (
-            (1 - alpha) * X + alpha * X_scaled
-        )
-
-        mean = current.mean(axis=0)
-        std = current.std(axis=0, ddof=0)
-        original_mean = X.mean(axis=0)
-        original_std = X.std(axis=0, ddof=0)
-        scaled_mean = X_scaled.mean(axis=0)
-        scaled_std = X_scaled.std(axis=0, ddof=0)
-
-        def format_stat(value):
-            # Suppress negative zero caused by floating-point rounding.
-            return "0.000" if abs(float(value)) < 0.0005 else f"{value:.3f}"
-
-        def metric_card(label, value, note):
-            return html.Div(
-                className="stat-card",
-                children=[
-                    html.Div(label, className="stat-label"),
-                    html.Div(format_stat(value), className="stat-value"),
-                    html.Div(note, className="section-description")
-                ]
-            )
-
-        stats = html.Div([
-            html.H3(f"Progress: {progress}%"),
-            html.P(
-                "The points move smoothly from the original measurements "
-                "toward their standardized z-scores."
-            ),
-            html.Div(
-                className="stats-grid",
-                style={
-                    "display": "grid",
-                    "gridTemplateColumns": "repeat(2, minmax(0, 1fr))",
-                    "gap": "16px",
-                    "marginBottom": "24px"
-                },
-                children=[
-                metric_card("Current X Mean", mean[x_idx], "Live transformation"),
-                metric_card("Current X Std", std[x_idx], "Live transformation"),
-                metric_card("Current Y Mean", mean[y_idx], "Live transformation"),
-                metric_card("Current Y Std", std[y_idx], "Live transformation")
-            ]),
-            html.H4("Original vs Standardized Statistics"),
-            html.Div(
-                style={"overflowX": "auto"},
-                children=html.Table(
-                    style={"width": "100%", "borderCollapse": "collapse", "textAlign": "left"},
-                    children=[
-                        html.Thead(html.Tr([
-                            html.Th("Feature", style={"padding": "10px"}),
-                            html.Th("Original Mean", style={"padding": "10px"}),
-                            html.Th("Original Std", style={"padding": "10px"}),
-                            html.Th("Standardized Mean", style={"padding": "10px"}),
-                            html.Th("Standardized Std", style={"padding": "10px"})
-                        ])),
-                        html.Tbody([
-                            html.Tr([
-                                html.Td(feature_names[idx], style={"padding": "10px"}),
-                                html.Td(format_stat(original_mean[idx]), style={"padding": "10px"}),
-                                html.Td(format_stat(original_std[idx]), style={"padding": "10px"}),
-                                html.Td(format_stat(scaled_mean[idx]), style={"padding": "10px"}),
-                                html.Td(format_stat(scaled_std[idx]), style={"padding": "10px"})
-                            ]) for idx in dict.fromkeys([x_idx, y_idx])
-                        ])
-                    ]
-                )
-            ),
-            html.P(
-                "Note: The animation interpolates between the original and "
-                "standardized coordinates for learning purposes. "
-                "Only the 100% frame represents fully standardized data."
-            )
-        ])
-
-        return stats
