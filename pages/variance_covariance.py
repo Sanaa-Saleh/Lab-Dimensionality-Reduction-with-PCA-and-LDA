@@ -402,7 +402,7 @@ def layout():
 
                 dcc.Interval(
                     id="vc-interval",
-                    interval=100,
+                    interval=200,
                     n_intervals=0,
                     disabled=True
                 )
