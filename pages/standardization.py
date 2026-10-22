@@ -230,7 +230,7 @@ def layout():
 
                 dcc.Interval(
                     id="std-interval",
-                    interval=1000,
+                    interval=900,
                     disabled=True
                 ),
 
