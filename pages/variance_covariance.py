@@ -491,6 +491,7 @@ def layout():
 
                 dcc.Graph(
                     id="vc-scatter",
+                    style={"height":"430px", "width":"100%"},
                     config={
                         "displaylogo": False,
                         "responsive": True
@@ -511,6 +512,7 @@ def layout():
 
                 dcc.Graph(
                     id="vc-heatmap",
+                    style={"height":"420px", "width":"100%"},
                     config={"displaylogo": False}
                 )
             ]

@@ -179,8 +179,8 @@ def make_reconstruction(k, sample, recovered):
                          x=FEATURES, y=approximation, marker_color="#7657d9"))
     fig.update_layout(template="plotly_white", barmode="group", height=430,
                       yaxis=dict(title="Standardized feature value", range=[-3.5, 3.5]),
-                      margin=dict(l=50, r=20, t=35, b=65),
-                      legend=dict(orientation="h", y=1.13),
+                      margin=dict(l=50, r=20, t=35, b=100),
+                      legend=dict(orientation="h", x=0.5, xanchor="center", y=-0.3, yanchor="top"),
                       font=dict(family="Segoe UI, Arial"))
     return fig
 

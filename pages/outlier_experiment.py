@@ -78,8 +78,8 @@ def plot_projection(scores, labels, title, prefix, outlier_index=None, x_range=N
         ))
     fig.update_layout(
         title=title, template="plotly_white", height=420,
-        margin=dict(l=35, r=20, t=55, b=40), font=dict(family="Segoe UI, Arial"),
-        legend_title="Iris species", xaxis_title=f"{prefix}1 score",
+        margin=dict(l=35, r=20, t=55, b=95), font=dict(family="Segoe UI, Arial"),
+        legend=dict(orientation="h", x=0.5, xanchor="center", y=-0.25, yanchor="top", title=None), xaxis_title=f"{prefix}1 score",
         yaxis_title="Display jitter (not a feature)" if dimensions == 1 else f"{prefix}2 score",
         uirevision="outlier-experiment",
     )
