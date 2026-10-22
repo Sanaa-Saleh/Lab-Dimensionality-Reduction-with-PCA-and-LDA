@@ -130,7 +130,7 @@ def layout():
                 html.Button('⏸ Pause', id='pca-pause', className='control-button secondary'),
                 html.Button('↺ Reset', id='pca-reset', className='control-button secondary')
             ]),
-            dcc.Interval(id='pca-interval', interval=500, n_intervals=0, disabled=True)
+            dcc.Interval(id='pca-interval', interval=900, n_intervals=0, disabled=True)
         ]),
         html.Div(className='chart-card', children=[
             html.Div('Live PCA Projection', className='section-title'),
