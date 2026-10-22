@@ -93,8 +93,10 @@ components gives (approximately) zero reconstruction error.
 
 **Important:** Explained variance is not classification accuracy. A 1D
 scatter may use vertical jitter for visibility only; jitter is not a
-second PCA dimension. Four-dimensional data cannot be shown directly in
-one 2D/3D scatter plot.
+second PCA dimension. Four-dimensional data cannot be shown as four spatial axes in
+one 2D/3D scatter plot. In the **4D view**, PC1, PC2 and PC3 form
+the spatial axes while point color encodes PC4. The color bar shows the
+PC4 score, not a species label.
 """, mathjax=True),
         ]),
     ])
@@ -114,12 +116,18 @@ def make_projection(k):
         fig.update_yaxes(title="Display jitter (not a feature)", range=[-0.32, 0.32], zeroline=True)
         fig.update_xaxes(title="PC1 score")
         note = "1D PCA: each sample has one retained score. Vertical jitter only separates overlapping dots."
-    elif k == 3:
+    elif k in (3, 4):
         for i, species in enumerate(iris.target_names):
             m = iris.target == i
-            fig.add_trace(go.Scatter3d(x=scores[m, 0], y=scores[m, 1], z=scores[m, 2],
-                                       mode="markers", name=species,
-                                       marker=dict(color=COLORS[i], size=5, opacity=0.85)))
+            marker = (dict(color=scores[m, 3], coloraxis="coloraxis", size=5, opacity=0.85)
+                      if k == 4 else dict(color=COLORS[i], size=5, opacity=0.85))
+            fig.add_trace(go.Scatter3d(
+                x=scores[m, 0], y=scores[m, 1], z=scores[m, 2],
+                mode="markers", name=species, marker=marker,
+                customdata=scores[m, 3],
+                hovertemplate=("PC1: %{x:.3f}<br>PC2: %{y:.3f}<br>PC3: %{z:.3f}"
+                               + ("<br>PC4: %{customdata:.3f}" if k == 4 else "")
+                               + f"<extra>{species}</extra>")))
         fig.update_layout(
             height=660,
             margin=dict(l=0, r=0, t=5, b=5),
@@ -131,9 +139,19 @@ def make_projection(k):
                 aspectmode="data",
                 camera=dict(eye=dict(x=1.45, y=1.55, z=1.1)),
             ),
-            legend=dict(x=1.0, y=0.98, xanchor="right", yanchor="top"),
+            legend=dict(x=0.01, y=0.99, xanchor="left", yanchor="top"),
         )
-        note = "3D PCA: rotate the plot to explore the first three retained components."
+        if k == 4:
+            fig.update_layout(coloraxis=dict(
+                colorscale="Viridis", cmin=float(scores[:, 3].min()),
+                cmax=float(scores[:, 3].max()),
+                colorbar=dict(title="PC4 score", len=0.72, thickness=15, x=1.02),
+            ))
+            note = ("4D PCA: PC1, PC2 and PC3 are the spatial axes, while point color "
+                    "encodes PC4. Rotate the plot and use the color bar to read PC4 scores. "
+                    "The legend identifies Iris species.")
+        else:
+            note = "3D PCA: rotate the plot to explore the first three retained components."
     else:
         for i, species in enumerate(iris.target_names):
             m = iris.target == i
@@ -142,14 +160,10 @@ def make_projection(k):
                                      hovertemplate="PC1: %{x:.3f}<br>PC2: %{y:.3f}<extra>" + species + "</extra>"))
         fig.update_xaxes(title="PC1 score")
         fig.update_yaxes(title="PC2 score")
-        if k == 2:
-            note = "2D PCA: the displayed PC1 and PC2 coordinates are the complete reduced representation."
-        else:
-            note = ("4D PCA: all four scores are retained. This 2D view shows only PC1 and PC2; "
-                    "PC3 and PC4 are still used in the reconstruction below.")
+        note = "2D PCA: the displayed PC1 and PC2 coordinates are the complete reduced representation."
     fig.update_layout(template="plotly_white",
-                      height=660 if k == 3 else 510,
-                      margin=dict(l=5, r=5, t=5, b=5) if k == 3 else dict(l=40, r=25, t=35, b=45),
+                      height=660 if k in (3, 4) else 510,
+                      margin=dict(l=5, r=65 if k == 4 else 5, t=5, b=5) if k in (3, 4) else dict(l=40, r=25, t=35, b=45),
                       legend_title="Iris species",
                       font=dict(family="Segoe UI, Arial"), uirevision=f"dr-{k}")
     return fig, note
