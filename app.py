@@ -207,8 +207,8 @@ app.layout = html.Div(
     className='app-container',
     children=[
         dcc.Location(id='url'),
-        html.Div([html.Span('Dimensionality Lab', className='mobile-brand'),
-                  html.Button('☰', id='menu-button', n_clicks=0, className='menu-button')], className='mobile-header'),
+        html.Div([html.Button('☰', id='menu-button', n_clicks=0, className='menu-button', **{'aria-label':'Toggle navigation'}),
+                  html.Div([html.Span('Dimensionality Lab', className='mobile-brand'), html.Span(id='current-page-name', className='current-page-name')], className='header-label')], className='mobile-header'),
         sidebar,
         html.Div(id='menu-overlay', className='menu-overlay', n_clicks=0),
         html.Div(id='page-content', className='main-content')
@@ -220,20 +220,45 @@ app.layout = html.Div(
 # 6. Page Navigation Callback
 # ==========================================
 app.clientside_callback(
-    """
-    function(clicks, path, overlay) {
-        const changed = dash_clientside.callback_context.triggered;
-        const id = changed.length ? changed[0].prop_id.split('.')[0] : '';
-        const wasOpen = document.body.classList.contains('menu-open');
-        const open = id === 'menu-button' ? !wasOpen : false;
-        document.body.classList.toggle('menu-open', open);
-        return open ? '✕' : '☰';
-    }
-    """,
-    Output('menu-button', 'children'),
-    Input('menu-button', 'n_clicks'),
-    Input('url', 'pathname'),
-    Input('menu-overlay', 'n_clicks')
+    """function(clicks, path, overlay) {
+        const ctx = dash_clientside.callback_context;
+        const t = ctx.triggered_id || '';
+        const mobile = window.matchMedia('(max-width:650px)').matches;
+        const saved = sessionStorage.getItem('dimlab-sidebar-collapsed');
+        if (t === 'menu-button') {
+            if (mobile) document.body.classList.toggle('menu-open');
+            else {
+                document.body.classList.toggle('sidebar-collapsed');
+                sessionStorage.setItem('dimlab-sidebar-collapsed', document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
+            }
+        } else if (t === 'menu-overlay' || t === 'url') {
+            document.body.classList.remove('menu-open');
+            if (!mobile && saved !== null) document.body.classList.toggle('sidebar-collapsed', saved === '1');
+        }
+        window.dispatchEvent(new Event('resize'));
+        return mobile && document.body.classList.contains('menu-open') ? '✕' : '☰';
+    }""",
+    Output('menu-button','children'), Input('menu-button','n_clicks'),
+    Input('url','pathname'), Input('menu-overlay','n_clicks')
+)
+
+app.clientside_callback(
+    """function(path) {
+        const names = {'/':'Dataset Explorer','/standardization':'Standardization',
+          '/variance-covariance':'Variance & Covariance','/pca-visualization':'PCA Visualization',
+          '/explained-variance':'Explained Variance','/dimension-reduction':'Dimension Reduction',
+          '/lda-visualization':'LDA Visualization','/pca-vs-lda':'PCA vs LDA',
+          '/outlier-experiment':'Outlier Experiment','/breast-cancer':'Breast Cancer Dataset'};
+        const active = path || '/';
+        document.querySelectorAll('.sidebar .nav-item').forEach(link => {
+            const url = new URL(link.href, window.location.href);
+            const on = url.pathname === active;
+            link.classList.toggle('active', on);
+            if (on) link.setAttribute('aria-current','page');
+            else link.removeAttribute('aria-current');
+        });
+        return names[active] || 'Dataset Explorer';
+    }""", Output('current-page-name','children'), Input('url','pathname')
 )
 
 @app.callback(Output('page-content' , 'children'), Input('url', 'pathname'))
@@ -290,9 +315,10 @@ def update_scatter(mode, x_feature, y_feature, z_feature):
 
     fig.update_layout(
         template='plotly_white', height=550,
-        margin=dict(l=30, r=20, t=65, b=35),
         font=dict(family='Segoe UI, Arial'),
-        legend_title_text='Iris Species'
+        legend_title_text='Iris Species',
+        legend=dict(orientation='h', x=0.5, xanchor='center', y=-0.25, yanchor='top'),
+        margin=dict(l=40,r=25,t=65,b=95)
     )
     return fig
 

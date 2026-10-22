@@ -178,9 +178,9 @@ def layout():
                 "Axes are refitted after adding the outlier.",
                 className="section-description",
             ),
-            html.Div(className="controls-row", children=[
-                html.Div(dcc.Graph(id="outlier-pca-before"), style={"flex": "1", "minWidth": "350px"}),
-                html.Div(dcc.Graph(id="outlier-pca-after"), style={"flex": "1", "minWidth": "350px"}),
+            html.Div(className="comparison-grid", children=[
+                html.Div(dcc.Graph(id="outlier-pca-before"), style={"flex": "1 1 0", "minWidth": "0"}),
+                html.Div(dcc.Graph(id="outlier-pca-after"), style={"flex": "1 1 0", "minWidth": "0"}),
             ]),
             html.Div(className="stats-grid", children=[
                 info_card("PCA PC1 Variance — Before", "outlier-pca-before-variance"),
@@ -200,9 +200,9 @@ def layout():
                 "so it can affect within-class scatter and the discriminant directions.",
                 className="section-description",
             ),
-            html.Div(className="controls-row", children=[
-                html.Div(dcc.Graph(id="outlier-lda-before"), style={"flex": "1", "minWidth": "350px"}),
-                html.Div(dcc.Graph(id="outlier-lda-after"), style={"flex": "1", "minWidth": "350px"}),
+            html.Div(className="comparison-grid", children=[
+                html.Div(dcc.Graph(id="outlier-lda-before"), style={"flex": "1 1 0", "minWidth": "0"}),
+                html.Div(dcc.Graph(id="outlier-lda-after"), style={"flex": "1 1 0", "minWidth": "0"}),
             ]),
             html.Div(className="stats-grid", children=[
                 info_card("LDA Separation Ratio — Before", "outlier-lda-separation-before"),

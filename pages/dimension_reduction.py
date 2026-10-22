@@ -130,22 +130,22 @@ def make_projection(k):
                                + f"<extra>{species}</extra>")))
         fig.update_layout(
             height=660,
-            margin=dict(l=0, r=0, t=5, b=5),
+            margin=dict(l=0, r=35, t=15, b=85),
             scene=dict(
                 xaxis=dict(title="PC1", backgroundcolor="#ffffff", gridcolor="#e8eef8"),
                 yaxis=dict(title="PC2", backgroundcolor="#ffffff", gridcolor="#e8eef8"),
                 zaxis=dict(title="PC3", backgroundcolor="#ffffff", gridcolor="#e8eef8"),
-                domain=dict(x=[0.02, 0.98], y=[0.02, 0.98]),
+                domain=dict(x=[0.02, 0.88], y=[0.08, 0.98]),
                 aspectmode="data",
                 camera=dict(eye=dict(x=1.45, y=1.55, z=1.1)),
             ),
-            legend=dict(x=0.01, y=0.99, xanchor="left", yanchor="top"),
+            legend=dict(orientation="h", x=0.5, xanchor="center", y=-0.12, yanchor="top"),
         )
         if k == 4:
             fig.update_layout(coloraxis=dict(
                 colorscale="Viridis", cmin=float(scores[:, 3].min()),
                 cmax=float(scores[:, 3].max()),
-                colorbar=dict(title="PC4 score", len=0.72, thickness=15, x=1.02),
+                colorbar=dict(title="PC4 score", len=0.72, thickness=12, x=0.94),
             ))
             note = ("4D PCA: PC1, PC2 and PC3 are the spatial axes, while point color "
                     "encodes PC4. Rotate the plot and use the color bar to read PC4 scores. "

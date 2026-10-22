@@ -168,12 +168,12 @@ def create_covariance_heatmap(data):
 
     fig = go.Figure(
         go.Heatmap(
-            z=covariance,
+            z=covariance.tolist(),
             x=labels,
             y=labels,
             colorscale="RdBu",
             zmid=0,
-            text=np.round(covariance, 3),
+            text=np.round(covariance, 3).tolist(),
             texttemplate="%{text}",
             hovertemplate=(
                 "%{y} vs %{x}<br>"
@@ -412,7 +412,7 @@ def layout():
 
         # Statistics
         html.Div(
-            className="stats-grid",
+            className="vc-kpi-grid",
             children=[
 
                 html.Div(
@@ -464,12 +464,7 @@ def layout():
                     ]
                 )
             ],
-            style={
-                "display": "grid",
-                "gridTemplateColumns": "repeat(auto-fit, minmax(210px, 1fr))",
-                "gap": "16px",
-                "marginBottom": "20px"
-            }
+
         ),
 
         html.Div(

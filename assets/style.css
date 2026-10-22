@@ -276,7 +276,7 @@ input[type="number"] {
 @media (max-width:650px) {
  html,body { max-width:100%; overflow-x:hidden; }
  .app-container { display:block; min-width:0; }
- .mobile-header { display:flex; align-items:center; justify-content:space-between; position:fixed; top:0; left:0; right:0; width:100%; z-index:1100; padding:10px 16px; min-height:62px; background:#18233e; color:white; }
+ .mobile-header { display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:1100; padding:10px 16px; background:#18233e; color:white; }
  .mobile-brand { font-size:16px; font-weight:700; }
  .menu-button { border:1px solid #465371; background:#273451; color:white; border-radius:9px; min-width:44px; min-height:42px; font-size:23px; cursor:pointer; }
  .sidebar { position:fixed; top:0; left:0; z-index:1200; width:min(82vw,300px); min-width:0; height:100dvh; overflow-y:auto; transform:translateX(-105%); transition:transform .2s ease; }
@@ -284,7 +284,6 @@ input[type="number"] {
  body.menu-open .menu-overlay { display:block; position:fixed; inset:0; z-index:1150; background:rgba(12,22,40,.5); }
  body.menu-open { overflow:hidden; }
  .main-content { width:100%; min-width:0; padding:18px 12px 28px; }
- .app-container { padding-top:62px; }
  .page-title { font-size:24px; overflow-wrap:anywhere; }
  .stats-grid { grid-template-columns:1fr; gap:12px; }
  .stat-card { padding:16px; }
@@ -294,3 +293,50 @@ input[type="number"] {
  .main-content .dash-graph, .main-content .js-plotly-plot, .main-content .plot-container { max-width:100%; min-width:0; }
  .info-box { overflow-wrap:anywhere; }
 }
+
+/* Unified responsive navigation */
+.mobile-header { display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:1050; padding:10px 20px; background:#18233e; color:white; min-height:62px; }
+.header-label { display:flex; flex-wrap:wrap; align-items:baseline; gap:12px; min-width:0; }
+.current-page-name { color:#d3dcf5; font-size:13px; padding-left:12px; border-left:1px solid #53617b; }
+.menu-button { border:1px solid #465371; background:#273451; color:white; border-radius:9px; min-width:44px; min-height:42px; font-size:23px; cursor:pointer; }
+.app-container { display:flex; flex-wrap:wrap; align-content:flex-start; }
+.mobile-header { flex:0 0 100%; }
+.sidebar { transition:width .2s ease, min-width .2s ease, padding .2s ease; }
+body.sidebar-collapsed .sidebar { width:0; min-width:0; padding:0; overflow:hidden; }
+body.sidebar-collapsed .main-content { flex:1; }
+.vc-kpi-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-bottom:20px; }
+.main-content .dash-graph { width:100%; min-width:0; }
+.main-content .js-plotly-plot { max-width:100%; }
+.chart-card { min-width:0; }
+/* Chart tools are a real toggle of Plotly's native modebar. */
+.chart-tools-toggle { display:inline-flex; align-items:center; gap:7px; border:1px solid #d7dff0; border-radius:9px; background:#f3f6ff; color:#263d69; padding:8px 13px; cursor:pointer; font:600 12px "Segoe UI",Arial,sans-serif; margin:8px 0 6px; }
+.chart-tools-toggle:hover { background:#e7edff; }
+.main-content .js-plotly-plot .modebar-container { visibility:hidden !important; pointer-events:none !important; }
+.main-content .chart-tools-open .js-plotly-plot .modebar-container { visibility:visible !important; pointer-events:auto !important; }
+.main-content .chart-tools-open .js-plotly-plot { padding-top:34px; }
+.main-content .chart-tools-open .js-plotly-plot .modebar-container { top:0 !important; }
+@media (max-width:650px) {
+ .app-container { display:block; }
+ .mobile-header { padding:10px 12px; }
+ .header-label { gap:3px; flex-direction:column; }
+ .mobile-brand { font-size:14px; }
+ .current-page-name { padding-left:0; border-left:0; font-size:12px; }
+ .sidebar { position:fixed; top:0; left:0; z-index:1200; width:min(82vw,300px); min-width:0; height:100dvh; overflow-y:auto; transform:translateX(-105%); transition:transform .2s ease; padding:18px; }
+ body.menu-open .sidebar { transform:translateX(0); }
+ body.sidebar-collapsed .sidebar { width:min(82vw,300px); min-width:0; padding:18px; }
+ .menu-overlay { display:none; }
+ body.menu-open .menu-overlay { display:block; position:fixed; inset:0; z-index:1150; background:rgba(12,22,40,.5); }
+ .main-content { width:100%; padding:18px 12px 28px; }
+ .vc-kpi-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+ .vc-kpi-grid .stat-card { padding:12px 9px; min-width:0; }
+ .vc-kpi-grid .stat-value { font-size:clamp(17px,5vw,27px); overflow-wrap:anywhere; }
+ .vc-kpi-grid .stat-label { font-size:11px; overflow-wrap:anywhere; }
+ .chart-card { overflow:visible; }
+ .main-content .controls-row > div { min-width:0 !important; max-width:100%; }
+ .main-content .dash-graph { min-width:0 !important; max-width:100%; }
+ .main-content .chart-tools-open .js-plotly-plot { padding-top:48px; }
+}
+
+.comparison-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; width:100%; }
+.comparison-grid > div { min-width:0; max-width:100%; }
+@media(max-width:650px) { .comparison-grid { grid-template-columns:minmax(0,1fr); } }

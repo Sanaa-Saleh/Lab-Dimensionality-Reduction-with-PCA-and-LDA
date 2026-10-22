@@ -123,10 +123,10 @@ def layout():
                    className='section-description'),
             html.Div([
                 html.Div(dcc.Graph(id='compare-pca-graph', config={'displaylogo': False}),
-                         style={'flex': '1', 'minWidth': '340px'}),
+                         style={'flex': '1 1 0', 'minWidth': '0'}),
                 html.Div(dcc.Graph(id='compare-lda-graph', config={'displaylogo': False}),
-                         style={'flex': '1', 'minWidth': '340px'}),
-            ], style={'display': 'flex', 'flexWrap': 'wrap', 'gap': '12px'}),
+                         style={'flex': '1 1 0', 'minWidth': '0'}),
+            ], className='comparison-grid'),
         ]),
         html.Div(className='info-box', style={'marginBottom': '20px'}, children=[
             html.H3(id='compare-explanation-title'),
