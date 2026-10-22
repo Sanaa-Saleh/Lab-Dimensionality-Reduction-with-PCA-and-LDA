@@ -1,4 +1,5 @@
 """Interactive dimensionality reduction and inverse PCA reconstruction."""
+from chart_style import finish_chart
 import numpy as np
 import plotly.graph_objects as go
 from dash import dcc, html, Input, Output
@@ -145,7 +146,7 @@ def make_projection(k):
             fig.update_layout(coloraxis=dict(
                 colorscale="Viridis", cmin=float(scores[:, 3].min()),
                 cmax=float(scores[:, 3].max()),
-                colorbar=dict(title="PC4 score", len=0.72, thickness=12, x=0.94),
+                colorbar=dict(title="PC4 score", orientation="h", len=0.65, thickness=14, x=0.5, xanchor="center", y=-0.15, yanchor="top"),
             ))
             note = ("4D PCA: PC1, PC2 and PC3 are the spatial axes, while point color "
                     "encodes PC4. Rotate the plot and use the color bar to read PC4 scores. "
@@ -166,9 +167,7 @@ def make_projection(k):
                       margin=dict(l=5, r=65 if k == 4 else 5, t=5, b=5) if k in (3, 4) else dict(l=40, r=25, t=35, b=45),
                       legend_title="Iris species",
                       font=dict(family="Segoe UI, Arial"), uirevision=f"dr-{k}")
-    return fig, note
-
-
+    return finish_chart(fig), note
 def make_reconstruction(k, sample, recovered):
     original = X[sample]
     approximation = recovered[sample]
@@ -182,9 +181,7 @@ def make_reconstruction(k, sample, recovered):
                       margin=dict(l=50, r=20, t=35, b=100),
                       legend=dict(orientation="h", x=0.5, xanchor="center", y=-0.3, yanchor="top"),
                       font=dict(family="Segoe UI, Arial"))
-    return fig
-
-
+    return finish_chart(fig)
 def register_callbacks(app):
     @app.callback(
         Output("dr-selected-components", "children"),

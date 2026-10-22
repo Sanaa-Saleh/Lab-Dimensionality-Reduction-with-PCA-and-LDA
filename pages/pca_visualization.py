@@ -1,3 +1,4 @@
+from chart_style import finish_chart
 import numpy as np
 import plotly.graph_objects as go
 from dash import html, dcc, Input, Output, State, ctx, no_update
@@ -42,8 +43,7 @@ def make_figure(progress):
         transition=dict(duration=0),
         uirevision='pca-projection-fixed'
     )
-    return fig
-
+    return finish_chart(fig)
 FEATURE_LABELS = ['Sepal Length', 'Sepal Width', 'Petal Length', 'Petal Width']
 FEATURE_COLORS = ['#6366f1', '#ef553b', '#10b981', '#f59e0b']
 
@@ -82,9 +82,7 @@ def make_loadings(selected='all'):
         margin=dict(l=55, r=30, t=65, b=110),
         hovermode='closest'
     )
-    return fig
-
-
+    return finish_chart(fig)
 def feature_details(selected):
     if selected == 'all':
         return ('All four features', '—', '—',
@@ -236,6 +234,12 @@ def register_callbacks(app):
             }
             fig.layout.title.text = `Projection onto PC1 — ${(a*100).toFixed(0)}% complete`;
             fig.layout.transition = {duration: 110, easing: 'linear'};
+            if (fig && fig.layout && !fig.layout.scene) {
+                fig.layout.xaxis = Object.assign({}, fig.layout.xaxis || {}, {fixedrange:true});
+                fig.layout.yaxis = Object.assign({}, fig.layout.yaxis || {}, {fixedrange:true});
+                fig.layout.legend = Object.assign({}, fig.layout.legend || {}, {orientation:'h', x:0.5, xanchor:'center', y:-0.20, yanchor:'top'});
+                fig.layout.margin = Object.assign({}, fig.layout.margin || {}, {b:110});
+            }
             return fig;
         }""",
         Output('pca-projection-graph', 'figure'),

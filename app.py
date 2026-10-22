@@ -208,7 +208,7 @@ app.layout = html.Div(
     children=[
         dcc.Location(id='url'),
         html.Div([html.Button('☰', id='menu-button', n_clicks=0, className='menu-button', **{'aria-label':'Toggle navigation'}),
-                  html.Div([html.Span('Dimensionality Lab', className='mobile-brand'), html.Span(id='current-page-name', className='current-page-name')], className='header-label')], className='mobile-header'),
+                  html.Div(html.Span(id='current-page-name', className='current-page-name'), className='header-label')], className='mobile-header'),
         sidebar,
         html.Div(id='menu-overlay', className='menu-overlay', n_clicks=0),
         html.Div(id='page-content', className='main-content')
@@ -221,21 +221,19 @@ app.layout = html.Div(
 # ==========================================
 app.clientside_callback(
     """function(clicks, path, overlay) {
-        const ctx = dash_clientside.callback_context;
-        const t = ctx.triggered_id || '';
-        const mobile = window.matchMedia('(max-width:650px)').matches;
-        const saved = sessionStorage.getItem('dimlab-sidebar-collapsed');
-        if (t === 'menu-button') {
+        const trigger = dash_clientside.callback_context.triggered_id || '';
+        const mobile = window.matchMedia('(max-width:700px)').matches;
+        if (trigger === 'menu-button') {
             if (mobile) document.body.classList.toggle('menu-open');
             else {
                 document.body.classList.toggle('sidebar-collapsed');
                 sessionStorage.setItem('dimlab-sidebar-collapsed', document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
             }
-        } else if (t === 'menu-overlay' || t === 'url') {
+        } else {
             document.body.classList.remove('menu-open');
-            if (!mobile && saved !== null) document.body.classList.toggle('sidebar-collapsed', saved === '1');
+            if (!mobile) document.body.classList.toggle('sidebar-collapsed', sessionStorage.getItem('dimlab-sidebar-collapsed') === '1');
         }
-        window.dispatchEvent(new Event('resize'));
+        requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
         return mobile && document.body.classList.contains('menu-open') ? '✕' : '☰';
     }""",
     Output('menu-button','children'), Input('menu-button','n_clicks'),

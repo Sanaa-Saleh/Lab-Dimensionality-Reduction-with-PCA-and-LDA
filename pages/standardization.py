@@ -1,3 +1,4 @@
+from chart_style import finish_chart
 
 import numpy as np
 import plotly.graph_objects as go
@@ -83,9 +84,7 @@ def create_figure(data, x_idx, y_idx, title,
         fig.update_xaxes(range=fixed_ranges[0])
         fig.update_yaxes(range=fixed_ranges[1])
 
-    return fig
-
-
+    return finish_chart(fig)
 # ==========================================
 # 3. Calculate Fixed Axis Ranges
 # ==========================================
@@ -468,6 +467,12 @@ def register_callbacks(app):
             fig.layout.xaxis.range = bounds(xIdx);
             fig.layout.yaxis.range = bounds(yIdx);
             fig.layout.transition = {duration: 110, easing: 'linear'};
+            if (fig && fig.layout && !fig.layout.scene) {
+                fig.layout.xaxis = Object.assign({}, fig.layout.xaxis || {}, {fixedrange:true});
+                fig.layout.yaxis = Object.assign({}, fig.layout.yaxis || {}, {fixedrange:true});
+                fig.layout.legend = Object.assign({}, fig.layout.legend || {}, {orientation:'h', x:0.5, xanchor:'center', y:-0.20, yanchor:'top'});
+                fig.layout.margin = Object.assign({}, fig.layout.margin || {}, {b:110});
+            }
             return fig;
         }""",
         Output('std-graph', 'figure'),

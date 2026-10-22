@@ -1,4 +1,5 @@
 """Interactive LDA visualization page for Dimensionality Lab (Dash)."""
+from chart_style import finish_chart
 import numpy as np
 import plotly.graph_objects as go
 from dash import dcc, html, Input, Output
@@ -66,9 +67,7 @@ def _figure(n_components, show_centroids):
     )
     if n_components == 1:
         fig.update_yaxes(range=[-0.45, 0.45])
-    return fig
-
-
+    return finish_chart(fig)
 def _scatter_summary():
     overall = X.mean(axis=0)
     within = 0.0
@@ -96,9 +95,7 @@ def _scatter_figure():
         margin=dict(l=45, r=20, t=65, b=65),
         yaxis_title="Sum of squared distances",
     )
-    return fig
-
-
+    return finish_chart(fig)
 def layout():
     return html.Div([
         html.H1("LDA Visualization", className="page-title"),

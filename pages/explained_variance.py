@@ -1,4 +1,5 @@
 """Interactive PCA explained variance page for Dimensionality Lab."""
+from chart_style import finish_chart
 
 import numpy as np
 import plotly.graph_objects as go
@@ -116,9 +117,7 @@ def make_bar_chart(components):
         yaxis_title="Explained variance (%)", yaxis_range=[0, 100],
         font=dict(family="Segoe UI, Arial"),
     )
-    return fig
-
-
+    return finish_chart(fig)
 def make_cumulative_chart(threshold, needed):
     x = list(range(1, 5))
     fig = go.Figure()
@@ -155,9 +154,7 @@ def make_cumulative_chart(threshold, needed):
         font=dict(family="Segoe UI, Arial"),
         legend=dict(orientation="h", y=-0.3),
     )
-    return fig
-
-
+    return finish_chart(fig)
 def register_callbacks(app):
     @app.callback(
         Output("ev-bars", "figure"),

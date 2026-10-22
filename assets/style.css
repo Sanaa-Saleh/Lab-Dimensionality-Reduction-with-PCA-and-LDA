@@ -271,98 +271,50 @@ input[type="number"] {
     display: none !important;
 }
 
-/* Mobile navigation and responsive layout. Desktop remains unchanged. */
-.mobile-header, .menu-overlay { display:none; }
-@media (max-width:650px) {
- html,body { max-width:100%; overflow-x:hidden; }
- .app-container { display:block; min-width:0; }
- .mobile-header { display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:1100; padding:10px 16px; background:#18233e; color:white; }
- .mobile-brand { font-size:16px; font-weight:700; }
- .menu-button { border:1px solid #465371; background:#273451; color:white; border-radius:9px; min-width:44px; min-height:42px; font-size:23px; cursor:pointer; }
- .sidebar { position:fixed; top:0; left:0; z-index:1200; width:min(82vw,300px); min-width:0; height:100dvh; overflow-y:auto; transform:translateX(-105%); transition:transform .2s ease; }
- body.menu-open .sidebar { transform:translateX(0); }
- body.menu-open .menu-overlay { display:block; position:fixed; inset:0; z-index:1150; background:rgba(12,22,40,.5); }
+
+/* Responsive shell: one layout model, no competing desktop/mobile overrides. */
+html, body { max-width:100%; margin:0; }
+body { overflow-x:clip; }
+.app-container { display:grid; grid-template-columns:280px minmax(0,1fr); grid-template-rows:62px minmax(0,1fr); min-height:100vh; align-items:stretch; }
+.mobile-header { display:flex; grid-column:1/-1; grid-row:1; align-items:center; gap:12px; position:sticky; top:0; z-index:1100; min-height:62px; padding:9px 18px; background:#18233e; color:#fff; }
+.menu-button { flex:none; border:1px solid #465371; background:#273451; color:#fff; border-radius:9px; min-width:44px; min-height:42px; font-size:23px; cursor:pointer; }
+.header-label { display:flex; align-items:center; min-width:0; }
+.mobile-brand { display:none; }
+.current-page-name { color:#d3dcf5; font-size:15px; font-weight:600; overflow-wrap:anywhere; }
+.app-container > .sidebar { grid-column:1; grid-row:2; position:sticky; top:62px; height:calc(100vh - 62px); align-self:start; width:100%; min-width:0; padding:18px; overflow-y:auto; transform:none; }
+.sidebar-title { font-size:clamp(23px,2.3vw,29px); overflow-wrap:anywhere; }
+.app-container > .main-content { grid-column:2; grid-row:2; width:100%; min-width:0; padding:30px clamp(14px,3vw,45px); }
+.menu-overlay { display:none; }
+body.sidebar-collapsed .app-container { grid-template-columns:0 minmax(0,1fr); }
+body.sidebar-collapsed .app-container > .sidebar { width:0; min-width:0; padding:0; visibility:hidden; overflow:hidden; }
+body.sidebar-collapsed .app-container > .main-content { grid-column:2; }
+.vc-kpi-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-bottom:20px; }
+.comparison-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; width:100%; }
+.comparison-grid > *, .vc-kpi-grid > * { min-width:0; }
+.main-content, .main-content > *, .chart-card, .info-box, .stat-card { min-width:0; max-width:100%; }
+.main-content .dash-graph, .main-content .js-plotly-plot { min-width:0; max-width:100%; width:100%; }
+.main-content h1, .main-content h2, .main-content h3, .main-content h4, .main-content p, .main-content label, .section-title, .section-description, .stat-label, .stat-value { overflow-wrap:anywhere; }
+.main-content table { max-width:100%; }
+.main-content .rc-slider-mark-text { white-space:normal; max-width:90px; text-align:center; font-size:11px; }
+.main-content .rc-slider-mark-text:first-child { transform:translateX(-10%) !important; }
+.main-content .rc-slider-mark-text:last-child { transform:translateX(-90%) !important; }
+.main-content .dash-table-container { max-width:100%; overflow-x:auto; }
+.chart-card { isolation:isolate; }
+/* Never hide native Plotly controls via CSS: 2D view locking is done in figures. */
+@media(max-width:700px) {
+ .app-container, body.sidebar-collapsed .app-container { display:block; min-height:100vh; }
+ .mobile-header { position:fixed; top:0; left:0; right:0; width:100%; z-index:1100; }
+ .app-container > .main-content, body.sidebar-collapsed .app-container > .main-content { width:100%; padding:20px 12px 30px; margin-top:62px; }
+ .app-container > .sidebar, body.sidebar-collapsed .app-container > .sidebar { position:fixed; top:0; left:0; z-index:1200; width:min(82vw,300px); height:100dvh; min-width:0; padding:18px; transform:translateX(-105%); visibility:visible; transition:transform .2s ease; }
+ body.menu-open .app-container > .sidebar { transform:translateX(0); }
+ body.menu-open .menu-overlay { display:block; position:fixed; inset:0; z-index:1150; background:rgba(12,22,40,.55); }
  body.menu-open { overflow:hidden; }
- .main-content { width:100%; min-width:0; padding:18px 12px 28px; }
- .page-title { font-size:24px; overflow-wrap:anywhere; }
- .stats-grid { grid-template-columns:1fr; gap:12px; }
- .stat-card { padding:16px; }
- .chart-card { padding:14px 10px; max-width:100%; overflow:hidden; }
- .controls-row { flex-direction:column; }
- .controls-row > * { width:100% !important; min-width:0 !important; max-width:100%; }
- .main-content .dash-graph, .main-content .js-plotly-plot, .main-content .plot-container { max-width:100%; min-width:0; }
- .info-box { overflow-wrap:anywhere; }
+ .comparison-grid { grid-template-columns:minmax(0,1fr); }
+ .vc-kpi-grid { gap:10px; }
+ .vc-kpi-grid .stat-card { padding:12px 8px; }
+ .vc-kpi-grid .stat-value { font-size:clamp(16px,5vw,27px); }
+ .page-title { font-size:clamp(23px,6vw,29px); }
+ .chart-card { padding:14px 10px; }
+ .main-content .controls-row { flex-direction:column; }
+ .main-content .controls-row > * { width:100% !important; min-width:0 !important; max-width:100%; }
 }
-
-/* Unified responsive navigation */
-.mobile-header { display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:1050; padding:10px 20px; background:#18233e; color:white; min-height:62px; }
-.header-label { display:flex; flex-wrap:wrap; align-items:baseline; gap:12px; min-width:0; }
-.current-page-name { color:#d3dcf5; font-size:13px; padding-left:12px; border-left:1px solid #53617b; }
-.menu-button { border:1px solid #465371; background:#273451; color:white; border-radius:9px; min-width:44px; min-height:42px; font-size:23px; cursor:pointer; }
-.app-container { display:flex; flex-wrap:wrap; align-content:flex-start; }
-.mobile-header { flex:0 0 100%; }
-.sidebar { transition:width .2s ease, min-width .2s ease, padding .2s ease; }
-body.sidebar-collapsed .sidebar { width:0; min-width:0; padding:0; overflow:hidden; }
-body.sidebar-collapsed .main-content { flex:1; }
-.vc-kpi-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-bottom:20px; }
-.main-content .dash-graph { width:100%; min-width:0; }
-.main-content .js-plotly-plot { max-width:100%; }
-.chart-card { min-width:0; }
-/* Chart tools are a real toggle of Plotly's native modebar. */
-.chart-tools-toggle { display:inline-flex; align-items:center; gap:7px; border:1px solid #d7dff0; border-radius:9px; background:#f3f6ff; color:#263d69; padding:8px 13px; cursor:pointer; font:600 12px "Segoe UI",Arial,sans-serif; margin:8px 0 6px; }
-.chart-tools-toggle:hover { background:#e7edff; }
-.main-content .js-plotly-plot .modebar-container { visibility:hidden !important; pointer-events:none !important; }
-.main-content .chart-tools-open .js-plotly-plot .modebar-container { visibility:visible !important; pointer-events:auto !important; }
-.main-content .chart-tools-open .js-plotly-plot { padding-top:34px; }
-.main-content .chart-tools-open .js-plotly-plot .modebar-container { top:0 !important; }
-@media (max-width:650px) {
- .app-container { display:block; }
- .mobile-header { padding:10px 12px; }
- .header-label { gap:3px; flex-direction:column; }
- .mobile-brand { font-size:14px; }
- .current-page-name { padding-left:0; border-left:0; font-size:12px; }
- .sidebar { position:fixed; top:0; left:0; z-index:1200; width:min(82vw,300px); min-width:0; height:100dvh; overflow-y:auto; transform:translateX(-105%); transition:transform .2s ease; padding:18px; }
- body.menu-open .sidebar { transform:translateX(0); }
- body.sidebar-collapsed .sidebar { width:min(82vw,300px); min-width:0; padding:18px; }
- .menu-overlay { display:none; }
- body.menu-open .menu-overlay { display:block; position:fixed; inset:0; z-index:1150; background:rgba(12,22,40,.5); }
- .main-content { width:100%; padding:18px 12px 28px; }
- .vc-kpi-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
- .vc-kpi-grid .stat-card { padding:12px 9px; min-width:0; }
- .vc-kpi-grid .stat-value { font-size:clamp(17px,5vw,27px); overflow-wrap:anywhere; }
- .vc-kpi-grid .stat-label { font-size:11px; overflow-wrap:anywhere; }
- .chart-card { overflow:visible; }
- .main-content .controls-row > div { min-width:0 !important; max-width:100%; }
- .main-content .dash-graph { min-width:0 !important; max-width:100%; }
- .main-content .chart-tools-open .js-plotly-plot { padding-top:48px; }
-}
-
-.comparison-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; width:100%; }
-.comparison-grid > div { min-width:0; max-width:100%; }
-@media(max-width:650px) { .comparison-grid { grid-template-columns:minmax(0,1fr); } }
-
-/* Stability patch: sidebar must never cover content on desktop. */
-@media (min-width:651px) {
- .app-container { display:flex; flex-wrap:wrap; align-content:flex-start; }
- .app-container > .mobile-header { flex:0 0 100%; }
- .app-container > .sidebar { position:sticky !important; transform:none !important; flex:0 0 280px; width:280px; min-width:280px; height:calc(100vh - 62px); top:62px; z-index:10; }
- .app-container > .main-content { flex:1 1 0; min-width:0; width:auto; }
- body.sidebar-collapsed .app-container > .sidebar { flex:0 0 0 !important; width:0 !important; min-width:0 !important; padding:0 !important; visibility:hidden; }
- body.sidebar-collapsed .app-container > .main-content { flex:1 1 100%; width:100%; }
- .mobile-brand { font-size:21px; font-weight:750; }
-}
-@media (max-width:650px) { .mobile-brand { font-size:17px; font-weight:750; } }
-/* Keep Plotly native modebar in a dedicated toolbar row, never on top of chart. */
-.main-content .chart-tools-holder { position:relative; display:flex; flex-wrap:wrap; gap:8px; align-items:center; min-height:40px; margin:8px 0; }
-.main-content .chart-tools-holder .chart-tools-toggle { margin:0; }
-.main-content .chart-tools-holder .plotly-tools-tray { display:none; position:relative; min-height:35px; max-width:100%; }
-.main-content .chart-tools-holder.tools-open .plotly-tools-tray { display:flex; align-items:center; }
-.main-content .chart-tools-holder .modebar-container { visibility:visible !important; pointer-events:auto !important; position:relative !important; top:auto !important; right:auto !important; left:auto !important; width:auto !important; height:auto !important; }
-.main-content .chart-tools-holder .modebar { position:relative !important; top:auto !important; right:auto !important; left:auto !important; display:flex !important; flex-wrap:wrap; background:#f3f6ff !important; }
-.main-content .js-plotly-plot .modebar-container { visibility:hidden !important; pointer-events:none !important; }
-.main-content .chart-tools-holder .modebar-container { visibility:visible !important; pointer-events:auto !important; }
-.main-content .chart-tools-open .js-plotly-plot { padding-top:0 !important; }
-.main-content .dash-graph { position:relative; min-height:0; }
-.main-content .chart-card { isolation:isolate; }
-/* Charts in comparison sections stack on phones without clipping. */
-@media(max-width:650px) { .comparison-grid { grid-template-columns:minmax(0,1fr) !important; } .comparison-grid > div { width:100%; } }

@@ -1,3 +1,4 @@
+from chart_style import finish_chart
 import numpy as np
 import plotly.graph_objects as go
 from dash import html, dcc, Input, Output
@@ -72,9 +73,7 @@ def plot_projection(scores, title, dim, centroids):
     )
     if dim == '1D':
         fig.update_yaxes(range=[-0.3, 0.3])
-    return fig
-
-
+    return finish_chart(fig)
 def metric_card(label, identifier):
     return html.Div(className='stat-card', children=[
         html.Div(label, className='stat-label'),

@@ -1,3 +1,4 @@
+from chart_style import finish_chart
 import numpy as np
 import plotly.graph_objects as go
 from dash import html, dcc, Input, Output
@@ -90,9 +91,7 @@ def plot_projection(scores, labels, title, prefix, outlier_index=None, x_range=N
         fig.update_yaxes(range=[-0.35, 0.35])
     elif y_range is not None:
         fig.update_yaxes(range=y_range)
-    return fig
-
-
+    return finish_chart(fig)
 def comparison_ranges(before, after):
     stacked = np.vstack([before, after])
     low = stacked.min(axis=0)

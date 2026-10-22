@@ -1,3 +1,4 @@
+from chart_style import finish_chart
 
 import numpy as np
 import plotly.graph_objects as go
@@ -63,9 +64,7 @@ def style_figure(fig, title, height=480, legend_title="Diagnosis"):
         uirevision="breast-cancer"
     )
 
-    return fig
-
-
+    return finish_chart(fig)
 # ==========================================
 # 3. PCA Visualization
 # ==========================================

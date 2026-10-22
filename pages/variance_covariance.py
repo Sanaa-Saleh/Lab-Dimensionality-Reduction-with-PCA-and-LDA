@@ -1,3 +1,4 @@
+from chart_style import finish_chart
 
 import numpy as np
 import plotly.graph_objects as go
@@ -148,9 +149,7 @@ def create_scatter(data, x_idx, y_idx, spread):
         autorange=False
     )
 
-    return fig
-
-
+    return finish_chart(fig)
 # ==========================================
 # 5. Covariance Heatmap
 # ==========================================
@@ -175,6 +174,7 @@ def create_covariance_heatmap(data):
             zmid=0,
             text=np.round(covariance, 3).tolist(),
             texttemplate="%{text}",
+            colorbar=dict(orientation="h", x=0.5, xanchor="center", y=-0.28, yanchor="top", len=0.7, thickness=13),
             hovertemplate=(
                 "%{y} vs %{x}<br>"
                 "Covariance: %{z:.4f}<extra></extra>"
@@ -186,12 +186,10 @@ def create_covariance_heatmap(data):
         title="Live Covariance Matrix",
         template="plotly_white",
         height=450,
-        margin=dict(l=95, r=35, t=65, b=85)
+        margin=dict(l=95, r=35, t=65, b=120)
     )
 
-    return fig
-
-
+    return finish_chart(fig)
 # ==========================================
 # 6. Relationship Experiment
 # ==========================================
@@ -491,7 +489,7 @@ def layout():
 
                 dcc.Graph(
                     id="vc-scatter",
-                    style={"height":"430px", "width":"100%"},
+                    style={"height":"520px", "width":"100%"},
                     config={
                         "displaylogo": False,
                         "responsive": True
@@ -512,7 +510,7 @@ def layout():
 
                 dcc.Graph(
                     id="vc-heatmap",
-                    style={"height":"420px", "width":"100%"},
+                    style={"height":"490px", "width":"100%"},
                     config={"displaylogo": False}
                 )
             ]
@@ -639,6 +637,12 @@ def register_callbacks(app):
                 return copy;
             });
             fig.layout.transition = {duration: 110, easing: 'linear'};
+            if (fig && fig.layout && !fig.layout.scene) {
+                fig.layout.xaxis = Object.assign({}, fig.layout.xaxis || {}, {fixedrange:true});
+                fig.layout.yaxis = Object.assign({}, fig.layout.yaxis || {}, {fixedrange:true});
+                fig.layout.legend = Object.assign({}, fig.layout.legend || {}, {orientation:'h', x:0.5, xanchor:'center', y:-0.20, yanchor:'top'});
+                fig.layout.margin = Object.assign({}, fig.layout.margin || {}, {b:110});
+            }
             return fig;
         }""",
         Output('vc-scatter', 'figure'),
@@ -684,6 +688,12 @@ def register_callbacks(app):
             const base=fig.data[0].z;
             fig.data[0].z=base.map(row=>row.map(v=>v*factor));
             fig.data[0].text=fig.data[0].z.map(row=>row.map(v=>Number(v.toFixed(3))));
+            if (fig && fig.layout && !fig.layout.scene) {
+                fig.layout.xaxis = Object.assign({}, fig.layout.xaxis || {}, {fixedrange:true});
+                fig.layout.yaxis = Object.assign({}, fig.layout.yaxis || {}, {fixedrange:true});
+                fig.layout.legend = Object.assign({}, fig.layout.legend || {}, {orientation:'h', x:0.5, xanchor:'center', y:-0.20, yanchor:'top'});
+                fig.layout.margin = Object.assign({}, fig.layout.margin || {}, {b:110});
+            }
             return fig;
         }""",
         Output('vc-heatmap','figure'), Input('vc-spread','value'),
