@@ -63,7 +63,7 @@ def _figure(n_components, show_centroids):
         margin=dict(l=50, r=30, t=65, b=50),
         xaxis_title="LD1 score",
         yaxis_title="Display jitter (not a feature)" if n_components == 1 else "LD2 score",
-        legend_title=None,legend=dict( orientation='h',x=0.5,xanchor='center',y=-0.20,yanchor='top',font=dict(size=10),entrywidth=60,entrywidthmode='pixels'),uirevision="lda",
+        legend_title=None,legend=dict( orientation='h',x=0,xanchor='left',y=-0.20,yanchor='top',font=dict(size=10),itemsizing='constant'),
     )
     if n_components == 1:
         fig.update_yaxes(range=[-0.45, 0.45])
