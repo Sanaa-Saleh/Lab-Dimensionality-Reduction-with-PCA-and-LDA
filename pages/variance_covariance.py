@@ -223,7 +223,7 @@ def relationship_layout():
                 marks={
                     -1: "Negative",
                     0: "Zero",
-                    1: {"label": "Positive", "style": {"transform": "translateX(-45px)"}}
+                    1: "Positive"
                 },
                 updatemode="drag"
             ),
