@@ -41,6 +41,7 @@ def make_figure(progress):
         xaxis=dict(title='PC1 score', range=[-x_bound, x_bound], autorange=False, fixedrange=True),
         yaxis=dict(title='PC2 score', range=[-y_bound, y_bound], autorange=False, fixedrange=True),
         transition=dict(duration=0),
+        legend=dict( orientation='h',x=0.5,xanchor='center',y=-0.20,yanchor='top', font=dict(size=10),itemsizing='constant',entrywidth=75,entrywidthmode='pixels'),
         uirevision='pca-projection-fixed'
     )
     return finish_chart(fig)
