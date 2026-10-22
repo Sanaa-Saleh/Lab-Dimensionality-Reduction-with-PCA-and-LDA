@@ -331,8 +331,8 @@ body.sidebar-collapsed .app-container > .main-content { grid-column:2; }
 #pca-progress { margin-left:12px; margin-right:12px; }
 #pca-progress .rc-slider-mark { margin-top:4px; }
 #pca-progress .rc-slider-mark-text { width:33%; max-width:none; white-space:normal; line-height:1.3; }
-#pca-progress .rc-slider-mark-text:first-child { text-align:left; transform:translateX(-2%) !important; }
-#pca-progress .rc-slider-mark-text:last-child { text-align:right; transform:translateX(-98%) !important; }
+#pca-progress .rc-slider-mark-text:first-child { text-align:left; transform:translateX(0) !important; }
+#pca-progress .rc-slider-mark-text:last-child { text-align:right; transform:translateX(-100%) !important; }
 @media(max-width:700px){
  #ev-breakdown table { min-width:0; }
  #ev-breakdown th, #ev-breakdown td { white-space:normal; overflow-wrap:anywhere; font-size:10.5px; padding:8px 3px !important; }
