@@ -221,9 +221,9 @@ def relationship_layout():
                 step=0.05,
                 value=-0.7,
                 marks={
-                    -1: "Negative",
+                    -1: {"label": "Negative", "style": {"transform": "translateX(18px)"}},
                     0: "Zero",
-                    1: "Positive"
+                    1: {"label": "Positive", "style": {"transform": "translateX(-18px)"}}
                 },
                 updatemode="drag"
             ),
