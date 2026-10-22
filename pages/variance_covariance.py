@@ -283,6 +283,13 @@ def relationship_layout():
 def layout():
 
     return html.Div([
+        dcc.Store(id='vc-animation-data', data={
+            'original': X.tolist(), 'means': means.tolist(),
+            'targets': iris.target.tolist(),
+            'base': create_scatter(X, 0, 1, 1).to_plotly_json(),
+            'names': feature_names,
+            'ranges': [get_fixed_ranges(i, i)[0] for i in range(4)]
+        }),
 
         html.H1(
             "Variance & Covariance Simulator",
@@ -395,7 +402,7 @@ def layout():
 
                 dcc.Interval(
                     id="vc-interval",
-                    interval=900,
+                    interval=100,
                     n_intervals=0,
                     disabled=True
                 )
@@ -605,8 +612,43 @@ def register_callbacks(app):
         State('vc-spread', 'value'), prevent_initial_call=True
     )
 
+    app.clientside_callback(
+        """function(xIdx, yIdx, spread, d) {
+            if (!d) return dash_clientside.no_update;
+            const fig = structuredClone(d.base);
+            const groups = [[], [], []];
+            const scale = Number(spread || 1);
+            for (let i = 0; i < d.original.length; i++) {
+                const r = d.original[i], k = d.targets[i];
+                groups[k].push([d.means[xIdx]+scale*(r[xIdx]-d.means[xIdx]),
+                                d.means[yIdx]+scale*(r[yIdx]-d.means[yIdx])]);
+            }
+            for (let k = 0; k < 3; k++) {
+                fig.data[k].x = groups[k].map(v => v[0]);
+                fig.data[k].y = groups[k].map(v => v[1]);
+            }
+            fig.data[3].x = [d.means[xIdx]];
+            fig.data[3].y = [d.means[yIdx]];
+            fig.layout.title.text = `Data Spread: ${scale.toFixed(2)}×`;
+            fig.layout.xaxis.title.text = d.names[xIdx];
+            fig.layout.yaxis.title.text = d.names[yIdx];
+            fig.layout.xaxis.range = d.ranges[xIdx];
+            fig.layout.yaxis.range = d.ranges[yIdx];
+            fig.layout.shapes = (fig.layout.shapes || []).map(sh => {
+                const copy = {...sh};
+                if (copy.type === 'line' && copy.y0 === copy.y1) copy.y0 = copy.y1 = d.means[yIdx];
+                if (copy.type === 'line' && copy.x0 === copy.x1) copy.x0 = copy.x1 = d.means[xIdx];
+                return copy;
+            });
+            fig.layout.transition = {duration: 110, easing: 'linear'};
+            return fig;
+        }""",
+        Output('vc-scatter', 'figure'),
+        Input('vc-x', 'value'), Input('vc-y', 'value'), Input('vc-spread', 'value'),
+        State('vc-animation-data', 'data')
+    )
+
     @app.callback(
-        Output("vc-scatter", "figure"),
         Output("vc-heatmap", "figure"),
         Output("vc-var-x", "children"),
         Output("vc-var-y", "children"),
@@ -657,7 +699,6 @@ def register_callbacks(app):
             )
 
         return (
-            create_scatter(modified, x_idx, y_idx, spread),
             create_covariance_heatmap(modified),
             f"{variance_x:.3f}",
             f"{variance_y:.3f}",

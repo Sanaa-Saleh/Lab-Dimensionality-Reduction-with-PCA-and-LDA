@@ -118,6 +118,12 @@ def get_fixed_ranges(x_idx, y_idx):
 def layout():
 
     return html.Div([
+        dcc.Store(id='std-animation-data', data={
+            'original': X.tolist(), 'scaled': X_scaled.tolist(),
+            'targets': iris.target.tolist(), 'names': feature_names,
+            'base': create_figure(X, 0, 1, 'Transformation Progress: 0%',
+                                  get_fixed_ranges(0, 1)).to_plotly_json()
+        }),
 
         html.H1(
             "Standardization Simulator",
@@ -230,7 +236,7 @@ def layout():
 
                 dcc.Interval(
                     id="std-interval",
-                    interval=900,
+                    interval=100,
                     disabled=True
                 ),
 
@@ -345,10 +351,54 @@ def register_callbacks(app):
         State('std-slider', 'value'), prevent_initial_call=True
     )
 
+    # Render the moving plot entirely in the browser. No network request per frame.
+    app.clientside_callback(
+        """function(progress, xIdx, yIdx, d) {
+            if (!d) return dash_clientside.no_update;
+            const a = Math.max(0, Math.min(1, Number(progress || 0) / 100));
+            const fig = structuredClone(d.base);
+            const points = [[], [], []];
+            for (let i = 0; i < d.original.length; i++) {
+                const k = d.targets[i];
+                points[k].push([
+                    (1-a)*d.original[i][xIdx] + a*d.scaled[i][xIdx],
+                    (1-a)*d.original[i][yIdx] + a*d.scaled[i][yIdx]
+                ]);
+            }
+            for (let k = 0; k < 3; k++) {
+                fig.data[k].x = points[k].map(v => v[0]);
+                fig.data[k].y = points[k].map(v => v[1]);
+            }
+            const axisLabel = (idx) => d.names[idx] + (a === 0 ? '' : a === 1 ? ' — standardized (z-score)' : ' — transitioning to z-score');
+            fig.layout.title.text = `Transformation Progress: ${progress}%`;
+            fig.layout.xaxis.title.text = axisLabel(xIdx);
+            fig.layout.yaxis.title.text = axisLabel(yIdx);
+            const bounds = (idx) => {
+                const vals = d.original.map(r => r[idx]).concat(d.scaled.map(r => r[idx]));
+                const lo = Math.min(...vals), hi = Math.max(...vals);
+                const pad = Math.max((hi-lo)*0.1, 0.3);
+                return [lo-pad, hi+pad];
+            };
+            fig.layout.xaxis.range = bounds(xIdx);
+            fig.layout.yaxis.range = bounds(yIdx);
+            fig.layout.transition = {duration: 110, easing: 'linear'};
+            return fig;
+        }""",
+        Output('std-graph', 'figure'),
+        Input('std-slider', 'value'), Input('std-x', 'value'),
+        Input('std-y', 'value'), State('std-animation-data', 'data')
+    )
+
     @app.callback(
-        Output("std-graph", "figure"),
         Output("std-before", "figure"),
         Output("std-after", "figure"),
+        Input("std-x", "value"), Input("std-y", "value")
+    )
+    def update_comparison(x_idx, y_idx):
+        return (create_figure(X, x_idx, y_idx, 'Before: Original Data'),
+                create_figure(X_scaled, x_idx, y_idx, 'After: Standardized Data', axis_mode='standardized'))
+
+    @app.callback(
         Output("std-stats", "children"),
         Input("std-slider", "value"),
         Input("std-x", "value"),
@@ -361,29 +411,6 @@ def register_callbacks(app):
         # Educational interpolation
         current = (
             (1 - alpha) * X + alpha * X_scaled
-        )
-
-        ranges = get_fixed_ranges(x_idx, y_idx)
-
-        axis_mode = (
-            "original" if alpha == 0 else
-            "standardized" if alpha == 1 else
-            "transition"
-        )
-        live_fig = create_figure(
-            current, x_idx, y_idx,
-            f"Transformation Progress: {progress}%",
-            ranges, axis_mode=axis_mode
-        )
-
-        before_fig = create_figure(
-            X, x_idx, y_idx, "Before: Original Data",
-            axis_mode="original"
-        )
-
-        after_fig = create_figure(
-            X_scaled, x_idx, y_idx,
-            "After: Standardized Data", axis_mode="standardized"
         )
 
         mean = current.mean(axis=0)
@@ -459,4 +486,4 @@ def register_callbacks(app):
             )
         ])
 
-        return live_fig, before_fig, after_fig, stats
+        return stats

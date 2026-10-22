@@ -130,7 +130,7 @@ def layout():
                 html.Button('⏸ Pause', id='pca-pause', className='control-button secondary'),
                 html.Button('↺ Reset', id='pca-reset', className='control-button secondary')
             ]),
-            dcc.Interval(id='pca-interval', interval=900, n_intervals=0, disabled=True)
+            dcc.Interval(id='pca-interval', interval=100, n_intervals=0, disabled=True)
         ]),
         html.Div(className='chart-card', children=[
             html.Div('Live PCA Projection', className='section-title'),
@@ -216,8 +216,28 @@ def register_callbacks(app):
         State('pca-progress', 'value'), prevent_initial_call=True
     )
 
-    @app.callback(
+    app.clientside_callback(
+        """function(progress, d) {
+            if (!d) return dash_clientside.no_update;
+            const a = Math.max(0, Math.min(1, Number(progress || 0)));
+            const fig = structuredClone(d.base);
+            const groups = [[], [], []];
+            for (let i = 0; i < d.scores.length; i++) {
+                groups[d.targets[i]].push([d.scores[i][0], (1-a)*d.scores[i][1]]);
+            }
+            for (let k = 0; k < 3; k++) {
+                fig.data[k].x = groups[k].map(v => v[0]);
+                fig.data[k].y = groups[k].map(v => v[1]);
+            }
+            fig.layout.title.text = `Projection onto PC1 — ${(a*100).toFixed(0)}% complete`;
+            fig.layout.transition = {duration: 110, easing: 'linear'};
+            return fig;
+        }""",
         Output('pca-projection-graph', 'figure'),
+        Input('pca-progress', 'value'), State('pca-animation-data', 'data')
+    )
+
+    @app.callback(
         Output('pca-progress-label', 'children'),
         Output('pca-progress-explanation', 'children'),
         Input('pca-progress', 'value')
@@ -244,7 +264,7 @@ def register_callbacks(app):
                 f'{remaining:.1f}% of its original PC2 coordinate. '
                 'This gradual movement is an educational animation, not a separate PCA fit.'
             )
-        return make_figure(progress), label, explanation
+        return label, explanation
 
     @app.callback(
         Output('pca-loadings-graph', 'figure'),
