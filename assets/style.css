@@ -370,3 +370,11 @@ body.sidebar-collapsed .app-container > .main-content { grid-column:2; }
   #vc-relationship .rc-slider-mark-text, #pca-progress .rc-slider-mark-text { font-size:10px; }
   .main-content .chart-card:has(#std-x), .main-content .chart-card:has(#std-y) { overflow:visible !important; }
 }
+@media (max-width: 700px) {
+    #vc-relationship {
+        width: calc(100% - 48px) !important;
+        margin-left: 24px !important;
+        margin-right: 24px !important;
+        box-sizing: border-box;
+    }
+}
