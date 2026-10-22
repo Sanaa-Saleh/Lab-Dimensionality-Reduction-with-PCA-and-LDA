@@ -312,7 +312,7 @@ def update_scatter(mode, x_feature, y_feature, z_feature):
     fig.update_layout(
         template='plotly_white', height=550,
         font=dict(family='Segoe UI, Arial'),
-        legend_title_text='Iris Species',
+        legend_title_text=None,
         legend=dict(orientation='h', x=0.5, xanchor='center', y=-0.25, yanchor='top'),
         margin=dict(l=40,r=25,t=65,b=95)
     )
