@@ -216,7 +216,6 @@ def relationship_layout():
             dcc.Slider(
                 id="vc-relationship",
                 className="vc-relationship-slider",
-                style={"width": "88%", "margin": "0 auto"},
                 min=-1,
                 max=1,
                 step=0.05,
