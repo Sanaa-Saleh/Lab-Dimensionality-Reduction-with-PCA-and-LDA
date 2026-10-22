@@ -132,9 +132,14 @@ def layout():
             ]),
             dcc.Interval(id='pca-interval', interval=200, n_intervals=0, disabled=True)
         ]),
+        dcc.Store(id='pca-animation-data', data={
+            'base': __import__('json').loads(make_figure(0).to_json()),
+            'scores': S.tolist(),
+            'targets': iris.target.tolist()
+        }),
         html.Div(className='chart-card', children=[
             html.Div('Live PCA Projection', className='section-title'),
-            dcc.Graph(id='pca-projection-graph', config={'displaylogo': False})
+            dcc.Graph(id='pca-projection-graph', figure=make_figure(0), config={'displaylogo': False})
         ]),
         html.Div(className='chart-card', children=[
             html.Div('How Original Features Form the PCs', className='section-title'),
