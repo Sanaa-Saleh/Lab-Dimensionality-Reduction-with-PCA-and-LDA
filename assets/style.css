@@ -318,3 +318,35 @@ body.sidebar-collapsed .app-container > .main-content { grid-column:2; }
  .main-content .controls-row { flex-direction:column; }
  .main-content .controls-row > * { width:100% !important; min-width:0 !important; max-width:100%; }
 }
+
+/* Final layout and chart safety fixes */
+.app-container { grid-template-rows:62px minmax(0,1fr); }
+.app-container > .sidebar { box-sizing:border-box; }
+.app-container > .main-content { overflow:visible; }
+.main-content .js-plotly-plot .modebar { display:none !important; }
+/* Plotly graphs are view-only; chart animations and sliders still work. */
+#ev-breakdown { width:100%; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+#ev-breakdown table { width:100%; min-width:450px; table-layout:fixed; }
+#ev-breakdown th, #ev-breakdown td { box-sizing:border-box; overflow-wrap:normal; white-space:nowrap; font-size:clamp(11px,2.7vw,14px); padding:9px 7px !important; }
+#pca-progress { margin-left:12px; margin-right:12px; }
+#pca-progress .rc-slider-mark { margin-top:4px; }
+#pca-progress .rc-slider-mark-text { width:33%; max-width:none; white-space:normal; line-height:1.3; }
+#pca-progress .rc-slider-mark-text:first-child { text-align:left; transform:translateX(-2%) !important; }
+#pca-progress .rc-slider-mark-text:last-child { text-align:right; transform:translateX(-98%) !important; }
+@media(max-width:700px){
+ #ev-breakdown table { min-width:0; }
+ #ev-breakdown th, #ev-breakdown td { white-space:normal; overflow-wrap:anywhere; font-size:10.5px; padding:8px 3px !important; }
+ #ev-breakdown th:first-child, #ev-breakdown td:first-child { width:23%; }
+ #ev-breakdown th:last-child, #ev-breakdown td:last-child { width:20%; }
+ #pca-progress .rc-slider-mark-text { font-size:10px; }
+ .main-content .chart-card { overflow:hidden; }
+}
+
+#pca-progress .rc-slider-mark-text { white-space:pre-line !important; }
+
+@media(max-width:700px) {
+ .main-content .dash-graph { overflow:hidden; }
+ .stats-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+ .stats-grid .stat-card { padding:12px 10px; }
+ .stats-grid .stat-value { font-size:clamp(16px,5vw,26px); }
+}

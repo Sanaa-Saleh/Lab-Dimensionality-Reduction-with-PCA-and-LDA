@@ -118,7 +118,7 @@ def layout():
             html.P('Move the slider or press Play to project the points onto the PC1 axis.',
                    className='section-description'),
             dcc.Slider(id='pca-progress', min=0, max=1, step=STEP, value=0,
-                       marks={0: 'Original PC1–PC2', 0.5: 'Halfway', 1: 'Projected onto PC1'},
+                       marks={0: 'Original\nPC1–PC2', 0.5: 'Halfway', 1: 'Projected onto\nPC1'},
                        updatemode='drag'),
             html.Div(id='pca-progress-label', style={'marginTop': '22px', 'fontWeight': '600', 'color': '#334155'}),
             html.Div(id='pca-progress-explanation', className='info-box',
@@ -137,7 +137,7 @@ def layout():
         }),
         html.Div(className='chart-card', children=[
             html.Div('Live PCA Projection', className='section-title'),
-            dcc.Graph(id='pca-projection-graph', figure=make_figure(0), config={'displaylogo': False})
+            dcc.Graph(id='pca-projection-graph', figure=make_figure(0), config={'displaylogo': False, "displayModeBar": False})
         ]),
         html.Div(className='chart-card', children=[
             html.Div('How Original Features Form the PCs', className='section-title'),
@@ -156,7 +156,7 @@ def layout():
                     )
                 ], style={'flex': '1', 'minWidth': '230px', 'maxWidth': '430px'})
             ]),
-            dcc.Graph(id='pca-loadings-graph', config={'displaylogo': False}),
+            dcc.Graph(id='pca-loadings-graph', config={'displaylogo': False, "displayModeBar": False}),
             html.Div(className='stats-grid', children=[
                 html.Div(className='stat-card', children=[
                     html.Div('Selected Feature', className='stat-label'),

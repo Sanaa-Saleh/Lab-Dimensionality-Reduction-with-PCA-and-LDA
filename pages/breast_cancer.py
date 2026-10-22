@@ -162,6 +162,9 @@ def create_lda_figure():
 # 5. Explained Variance Chart
 # ==========================================
 
+from functools import lru_cache
+
+@lru_cache(maxsize=60)
 def create_variance_figure(target=95):
 
     target_fraction = target / 100
@@ -328,13 +331,11 @@ def layout():
                     className="section-description"
                 ),
 
-                dcc.Graph(
-                    id="bc-pca-graph",
+                dcc.Graph(id="bc-pca-graph", config={"displayModeBar": False},
                     figure=create_pca_figure()
                 ),
 
-                dcc.Graph(
-                    id="bc-lda-graph",
+                dcc.Graph(id="bc-lda-graph", config={"displayModeBar": False},
                     figure=create_lda_figure()
                 ),
 
@@ -392,6 +393,7 @@ def layout():
 
                 dcc.Slider(
                     id="bc-target",
+                    updatemode="drag",
                     min=50,
                     max=99,
                     step=1,
@@ -459,7 +461,7 @@ def layout():
                     ]
                 ),
 
-                dcc.Graph(id="bc-variance-graph"),
+                dcc.Graph(id="bc-variance-graph", config={"displayModeBar": False}),
                 html.Div(
                     id="bc-variance-explanation",
                     className="info-box",

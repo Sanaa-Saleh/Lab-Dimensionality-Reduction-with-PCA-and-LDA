@@ -134,12 +134,12 @@ def layout():
             html.Div("Live Class Separation", className="section-title"),
             html.P(id="lda-plot-note", className="section-description"),
             html.Div(id="lda-dimension-explanation", className="info-box", style={"marginBottom": "14px"}),
-            dcc.Graph(id="lda-scatter", config={"displaylogo": False}),
+            dcc.Graph(id="lda-scatter", config={"displaylogo": False, "displayModeBar": False}),
         ]),
         html.Div(className="chart-card", children=[
             html.Div("Within-Class vs Between-Class Scatter", className="section-title"),
             html.P("These two values summarize the standardized original data; they do not change when you select 1D or 2D. LDA seeks directions that favor separation between classes relative to variation within classes.", className="section-description"),
-            dcc.Graph(figure=_scatter_figure(), config={"displaylogo": False}),
+            dcc.Graph(figure=_scatter_figure(), config={"displaylogo": False, "displayModeBar": False}),
         ]),
         html.Div(className="info-box", children=[
             html.H3("What is LDA optimizing?"),

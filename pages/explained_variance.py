@@ -65,14 +65,14 @@ def layout():
             html.P("Each bar shows the variance explained by one component. "
                    "Purple bars are automatically retained to meet the target.",
                    className="section-description"),
-            dcc.Graph(id="ev-bars", config={"displaylogo": False}),
+            dcc.Graph(id="ev-bars", config={"displaylogo": False, "displayModeBar": False}),
         ]),
         html.Div(className="chart-card", children=[
             html.Div("Cumulative Explained Variance", className="section-title"),
             html.P("The dashed horizontal line is your target. "
                    "The highlighted point is the smallest number of components that reaches it.",
                    className="section-description"),
-            dcc.Graph(id="ev-cumulative", config={"displaylogo": False}),
+            dcc.Graph(id="ev-cumulative", config={"displaylogo": False, "displayModeBar": False}),
         ]),
         html.Div(className="chart-card", children=[
             html.Div("Component-by-Component Breakdown", className="section-title"),
@@ -101,6 +101,9 @@ necessarily preserve all information needed for every prediction task.
     ])
 
 
+from functools import lru_cache
+
+@lru_cache(maxsize=4)
 def make_bar_chart(components):
     fig = go.Figure()
     fig.add_trace(go.Bar(
@@ -118,6 +121,7 @@ def make_bar_chart(components):
         font=dict(family="Segoe UI, Arial"),
     )
     return finish_chart(fig)
+@lru_cache(maxsize=60)
 def make_cumulative_chart(threshold, needed):
     x = list(range(1, 5))
     fig = go.Figure()

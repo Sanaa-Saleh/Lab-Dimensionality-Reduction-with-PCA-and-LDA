@@ -178,8 +178,8 @@ def layout():
                 className="section-description",
             ),
             html.Div(className="comparison-grid", children=[
-                html.Div(dcc.Graph(id="outlier-pca-before"), style={"flex": "1 1 0", "minWidth": "0"}),
-                html.Div(dcc.Graph(id="outlier-pca-after"), style={"flex": "1 1 0", "minWidth": "0"}),
+                html.Div(dcc.Graph(id="outlier-pca-before", config={"displayModeBar": False}), style={"flex": "1 1 0", "minWidth": "0"}),
+                html.Div(dcc.Graph(id="outlier-pca-after", config={"displayModeBar": False}), style={"flex": "1 1 0", "minWidth": "0"}),
             ]),
             html.Div(className="stats-grid", children=[
                 info_card("PCA PC1 Variance — Before", "outlier-pca-before-variance"),
@@ -200,8 +200,8 @@ def layout():
                 className="section-description",
             ),
             html.Div(className="comparison-grid", children=[
-                html.Div(dcc.Graph(id="outlier-lda-before"), style={"flex": "1 1 0", "minWidth": "0"}),
-                html.Div(dcc.Graph(id="outlier-lda-after"), style={"flex": "1 1 0", "minWidth": "0"}),
+                html.Div(dcc.Graph(id="outlier-lda-before", config={"displayModeBar": False}), style={"flex": "1 1 0", "minWidth": "0"}),
+                html.Div(dcc.Graph(id="outlier-lda-after", config={"displayModeBar": False}), style={"flex": "1 1 0", "minWidth": "0"}),
             ]),
             html.Div(className="stats-grid", children=[
                 info_card("LDA Separation Ratio — Before", "outlier-lda-separation-before"),
@@ -221,7 +221,7 @@ def layout():
                 "A large outlier may make one direction dominate.",
                 className="section-description",
             ),
-            dcc.Graph(id="outlier-variance-chart"),
+            dcc.Graph(id="outlier-variance-chart", config={"displayModeBar": False}),
         ]),
         html.Div(id="outlier-understanding", className="info-box",
                  style={"marginBottom": "18px"}),
@@ -340,6 +340,7 @@ def register_callbacks(app):
             yaxis=dict(range=[0, 110]),
             legend_title="Experiment",
         )
+        variance_fig = finish_chart(variance_fig)
 
         before_ratio = separation_ratio(BASE_LDA_SCORES[:, :dimensions], Y)
         after_ratio = separation_ratio(lda_scores[:, :dimensions], labels)

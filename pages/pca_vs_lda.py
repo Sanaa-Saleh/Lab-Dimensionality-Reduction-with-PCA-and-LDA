@@ -121,9 +121,9 @@ def layout():
             html.P('The same samples appear in both charts. The horizontal scales are algorithm-specific; compare class overlap, not absolute coordinates.',
                    className='section-description'),
             html.Div([
-                html.Div(dcc.Graph(id='compare-pca-graph', config={'displaylogo': False}),
+                html.Div(dcc.Graph(id='compare-pca-graph', config={'displaylogo': False, "displayModeBar": False}),
                          style={'flex': '1 1 0', 'minWidth': '0'}),
-                html.Div(dcc.Graph(id='compare-lda-graph', config={'displaylogo': False}),
+                html.Div(dcc.Graph(id='compare-lda-graph', config={'displaylogo': False, "displayModeBar": False}),
                          style={'flex': '1 1 0', 'minWidth': '0'}),
             ], className='comparison-grid'),
         ]),
@@ -137,7 +137,7 @@ def layout():
             html.Div('Projected Class Separation', className='section-title'),
             html.P('Between-class scatter divided by within-class scatter in each displayed projection. Higher means better separation relative to within-class spread; this is not classification accuracy.',
                    className='section-description'),
-            dcc.Graph(id='compare-ratio-chart', config={'displaylogo': False}),
+            dcc.Graph(id='compare-ratio-chart', config={'displaylogo': False, "displayModeBar": False}),
         ]),
         html.Div(className='info-box', children=[
             html.H3('What is the difference?'),

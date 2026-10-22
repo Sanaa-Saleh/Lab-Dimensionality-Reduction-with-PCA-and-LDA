@@ -274,11 +274,9 @@ def layout():
                     className="section-description"
                 ),
 
-                dcc.Graph(
-                    id="std-graph",
-                    config={
+                dcc.Graph(id="std-graph", config={
                         "displaylogo": False,
-                        "responsive": True
+                        "responsive": True, "displayModeBar": False
                     }
                 ),
 
@@ -351,8 +349,8 @@ def layout():
 
                 html.Div(
                     children=[
-                        dcc.Graph(id="std-before"),
-                        dcc.Graph(id="std-after")
+                        dcc.Graph(id="std-before", config={"displayModeBar": False}),
+                        dcc.Graph(id="std-after", config={"displayModeBar": False})
                     ],
                     style={
                         "display": "grid",

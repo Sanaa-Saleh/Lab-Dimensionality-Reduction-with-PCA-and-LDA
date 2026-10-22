@@ -60,7 +60,7 @@ def layout():
         html.Div(className="chart-card", children=[
             html.Div("Reduced Data Representation", className="section-title"),
             html.P(id="dr-plot-explanation", className="section-description"),
-            dcc.Graph(id="dr-projection", config={"displaylogo": False, "responsive": True},
+            dcc.Graph(id="dr-projection", config={"displaylogo": False, "responsive": True, "displayModeBar": False},
                       style={"width": "100%", "minHeight": "560px"}),
         ]),
         html.Div(className="chart-card", children=[
@@ -76,7 +76,7 @@ def layout():
                          "value": i} for i in range(len(X))], value=0, clearable=False),
                 ]),
             ]),
-            dcc.Graph(id="dr-reconstruction", config={"displaylogo": False}),
+            dcc.Graph(id="dr-reconstruction", config={"displaylogo": False, "displayModeBar": False}),
             html.P(id="dr-sample-error", className="section-description"),
         ]),
         html.Div(className="info-box", children=[

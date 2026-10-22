@@ -183,9 +183,7 @@ def dataset_layout():
                     )
                 ], id='z-feature-container', style={'minWidth': '180px', 'flex': '1'})
             ]),
-            dcc.Graph(
-                id='iris-scatter',
-                config={'displaylogo': False, 'responsive': True, 'scrollZoom': True}
+            dcc.Graph(id='iris-scatter', config={'displaylogo': False, 'responsive': True, 'scrollZoom': False, 'displayModeBar': False}
             )
         ]),
         html.Div(className='info-box', children=[
@@ -318,6 +316,9 @@ def update_scatter(mode, x_feature, y_feature, z_feature):
         legend=dict(orientation='h', x=0.5, xanchor='center', y=-0.25, yanchor='top'),
         margin=dict(l=40,r=25,t=65,b=95)
     )
+    if mode != '3D':
+        fig.update_xaxes(fixedrange=True)
+        fig.update_yaxes(fixedrange=True)
     return fig
 
 

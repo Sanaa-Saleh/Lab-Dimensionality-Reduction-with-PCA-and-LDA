@@ -227,9 +227,7 @@ def relationship_layout():
                 updatemode="drag"
             ),
 
-            dcc.Graph(
-                id="vc-relationship-graph",
-                config={"displaylogo": False}
+            dcc.Graph(id="vc-relationship-graph", config={"displaylogo": False, "displayModeBar": False}
             ),
 
             html.Div(
@@ -487,12 +485,11 @@ def layout():
                     className="section-description"
                 ),
 
-                dcc.Graph(
-                    id="vc-scatter",
+                dcc.Graph(id="vc-scatter",
                     style={"height":"520px", "width":"100%"},
                     config={
                         "displaylogo": False,
-                        "responsive": True
+                        "responsive": True, "displayModeBar": False
                     }
                 )
             ]
@@ -508,10 +505,9 @@ def layout():
                     className="section-title"
                 ),
 
-                dcc.Graph(
-                    id="vc-heatmap",
+                dcc.Graph(id="vc-heatmap",
                     style={"height":"490px", "width":"100%"},
-                    config={"displaylogo": False}
+                    config={"displaylogo": False, "displayModeBar": False}
                 )
             ]
         ),
