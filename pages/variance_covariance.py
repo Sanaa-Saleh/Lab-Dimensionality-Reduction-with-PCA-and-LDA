@@ -215,6 +215,7 @@ def relationship_layout():
 
             dcc.Slider(
                 id="vc-relationship",
+                className="vc-relationship-slider",
                 min=-1,
                 max=1,
                 step=0.05,
@@ -775,6 +776,10 @@ def register_callbacks(app):
                 easing="linear"
             )
         )
+
+        fig.update_xaxes(fixedrange=True)
+        fig.update_yaxes(fixedrange=True)
+        fig.update_layout(dragmode=False, uirevision="vc-relationship-fixed", transition=dict(duration=0))
 
         if strength > 0.05:
             explanation = (

@@ -350,3 +350,23 @@ body.sidebar-collapsed .app-container > .main-content { grid-column:2; }
  .stats-grid .stat-card { padding:12px 10px; }
  .stats-grid .stat-value { font-size:clamp(16px,5vw,26px); }
 }
+
+/* Review fixes: select menus must stack above the following plot cards. */
+.main-content .chart-card:has(#std-x),
+.main-content .chart-card:has(#std-y) { position:relative; z-index:80; overflow:visible !important; }
+.main-content .chart-card:has(#std-x) .Select-menu-outer,
+.main-content .chart-card:has(#std-y) .Select-menu-outer { z-index:100; }
+.main-content .chart-card:has(#std-x) .Select,
+.main-content .chart-card:has(#std-y) .Select { position:relative; z-index:90; }
+/* Relationship marks and PCA projection marks stay within their cards on phones. */
+#vc-relationship, #pca-progress { margin-left:16px; margin-right:16px; }
+#vc-relationship .rc-slider-mark-text { max-width:36%; width:36%; white-space:normal; line-height:1.3; }
+#vc-relationship .rc-slider-mark-text:first-child { text-align:left; transform:translateX(0) !important; }
+#vc-relationship .rc-slider-mark-text:last-child { text-align:right; transform:translateX(-100%) !important; }
+#pca-progress .rc-slider-mark-text:first-child { left:0 !important; width:35%; text-align:left; transform:translateX(0) !important; }
+#pca-progress .rc-slider-mark-text:last-child { left:100% !important; width:35%; text-align:right; transform:translateX(-100%) !important; }
+@media(max-width:700px) {
+  #vc-relationship, #pca-progress { margin-left:20px; margin-right:20px; }
+  #vc-relationship .rc-slider-mark-text, #pca-progress .rc-slider-mark-text { font-size:10px; }
+  .main-content .chart-card:has(#std-x), .main-content .chart-card:has(#std-y) { overflow:visible !important; }
+}

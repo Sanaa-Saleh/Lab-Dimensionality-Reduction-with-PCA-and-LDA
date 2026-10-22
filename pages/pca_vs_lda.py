@@ -199,7 +199,9 @@ def register_callbacks(app):
             yaxis_title='Between / Within scatter ratio',
             font=dict(family='Segoe UI, Arial'),
         )
-        bars.update_yaxes(range=[0, max(pca_ratio, lda_ratio) * 1.2])
+        bars.update_yaxes(range=[0, max(pca_ratio, lda_ratio) * 1.2], fixedrange=True)
+        bars.update_xaxes(fixedrange=True)
+        bars.update_layout(dragmode=False, uirevision="compare-ratio-fixed")
         pca_note = (
             f'PCA: PC1 retains {retained:.2f}% of the original standardized feature variance. '
             'Only the PC1 coordinate is real; vertical jitter is for readability.'

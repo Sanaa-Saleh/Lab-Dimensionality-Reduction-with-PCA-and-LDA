@@ -131,22 +131,22 @@ def make_projection(k):
                                + f"<extra>{species}</extra>")))
         fig.update_layout(
             height=660,
-            margin=dict(l=0, r=35, t=15, b=85),
+            margin=dict(l=8, r=8, t=15, b=150 if k == 4 else 100),
             scene=dict(
                 xaxis=dict(title="PC1", backgroundcolor="#ffffff", gridcolor="#e8eef8"),
                 yaxis=dict(title="PC2", backgroundcolor="#ffffff", gridcolor="#e8eef8"),
                 zaxis=dict(title="PC3", backgroundcolor="#ffffff", gridcolor="#e8eef8"),
-                domain=dict(x=[0.02, 0.88], y=[0.08, 0.98]),
+                domain=dict(x=[0.06, 0.94], y=[0.26, 0.99] if k == 4 else [0.14, 0.99]),
                 aspectmode="data",
                 camera=dict(eye=dict(x=1.45, y=1.55, z=1.1)),
             ),
-            legend=dict(orientation="h", x=0.5, xanchor="center", y=-0.12, yanchor="top"),
+            legend=dict(orientation="h", x=0.5, xanchor="center", y=-0.22 if k == 4 else -0.10, yanchor="top"),
         )
         if k == 4:
             fig.update_layout(coloraxis=dict(
                 colorscale="Viridis", cmin=float(scores[:, 3].min()),
                 cmax=float(scores[:, 3].max()),
-                colorbar=dict(title="PC4 score", orientation="h", len=0.65, thickness=14, x=0.5, xanchor="center", y=-0.15, yanchor="top"),
+                colorbar=dict(orientation="h", len=0.55, thickness=12, x=0.5, xanchor="center", y=0.12, yanchor="middle", tickfont=dict(size=10), title=dict(text="PC4 score", side="top")),
             ))
             note = ("4D PCA: PC1, PC2 and PC3 are the spatial axes, while point color "
                     "encodes PC4. Rotate the plot and use the color bar to read PC4 scores. "
@@ -164,9 +164,11 @@ def make_projection(k):
         note = "2D PCA: the displayed PC1 and PC2 coordinates are the complete reduced representation."
     fig.update_layout(template="plotly_white",
                       height=660 if k in (3, 4) else 510,
-                      margin=dict(l=5, r=65 if k == 4 else 5, t=5, b=5) if k in (3, 4) else dict(l=40, r=25, t=35, b=45),
+                      margin=dict(l=8, r=8, t=15, b=150 if k == 4 else 100) if k in (3, 4) else dict(l=40, r=25, t=35, b=45),
                       legend_title="Iris species",
                       font=dict(family="Segoe UI, Arial"), uirevision=f"dr-{k}")
+    if k == 4:
+        fig.update_layout(legend=dict(orientation="h", x=0.5, xanchor="center", y=-0.12, yanchor="top", title_text=""))
     return finish_chart(fig), note
 def make_reconstruction(k, sample, recovered):
     original = X[sample]
