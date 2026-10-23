@@ -34,6 +34,8 @@ app = Dash(
     meta_tags=[{'name':'viewport','content':'width=device-width, initial-scale=1'}]
 )
 
+app.title = "Dimensionality Reduction | PCA & LDA"
+
 server = app.server
 
 standardization.register_callbacks(app)
