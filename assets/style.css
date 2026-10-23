@@ -42,13 +42,13 @@ body {
     font-size: 23px;
     white-space: nowrap;
     font-weight: 700;
-    margin: 0 0 4px;
+    margin: 0 0 8px;
 }
 
 .sidebar-subtitle {
     color: #a9b8d4;
     font-size: 14px;
-    margin-bottom: 36px;
+    margin-bottom: 30px;
 }
 
 .sidebar-heading {
