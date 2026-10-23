@@ -313,7 +313,7 @@ body.sidebar-collapsed .app-container > .main-content { grid-column:2; }
  .vc-kpi-grid { gap:10px; }
  .vc-kpi-grid .stat-card { padding:12px 8px; }
  .vc-kpi-grid .stat-value { font-size:clamp(16px,5vw,27px); }
- .page-title { font-size:clamp(23px,6vw,29px); }
+ .page-title { font-size:clamp(20px,6vw,29px); }
  .chart-card { padding:14px 10px; }
  .main-content .controls-row { flex-direction:column; }
  .main-content .controls-row > * { width:100% !important; min-width:0 !important; max-width:100%; }
