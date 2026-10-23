@@ -39,7 +39,7 @@ body {
 }
 
 .sidebar-title {
-    font-size: 16px;
+    font-size: 18px !important;
     white-space: nowrap;
     font-weight: 700;
     margin: 0 0 8px;
@@ -283,7 +283,6 @@ body { overflow-x:clip; }
 .mobile-brand { display:none; }
 .current-page-name { color:#d3dcf5; font-size:15px; font-weight:600; overflow-wrap:anywhere; }
 .app-container > .sidebar { grid-column:1; grid-row:2; position:sticky; top:62px; height:calc(100vh - 62px); align-self:start; width:100%; min-width:0; padding:18px; overflow-y:auto; transform:none; }
-.sidebar-title { font-size:clamp(23px,2.3vw,29px); overflow-wrap:anywhere; }
 .app-container > .main-content { grid-column:2; grid-row:2; width:100%; min-width:0; padding:30px clamp(14px,3vw,45px); }
 .menu-overlay { display:none; }
 body.sidebar-collapsed .app-container { grid-template-columns:0 minmax(0,1fr); }
